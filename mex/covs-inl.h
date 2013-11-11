@@ -90,6 +90,36 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
                                       Eigen::Matrix<_T,3,1>& mu,
                                       Eigen::Matrix<_T,3,3>& C)
 {
+  const _T eps = static_cast<_T>(1e-10);
+
+  using namespace Eigen;
+  typedef Eigen::Matrix<_T,3,1> Vec3;
+  typedef Eigen::Matrix<_T,3,3> Mat3;
+
+  _T sum_w = 0; // sum weights
+  mu = Vec3::Zero();
+  for(size_t i=0; i<inds.size(); ++i) 
+  {
+    const _T w = dists[i] > eps ? (1.0/dists[i]) : 1;
+    sum_w += w;
+
+    mu += w * Map<const Vec3>(X.col(inds[i]),3,1);
+  }
+  mu /= sum_w; // -1 ?
+
+
+  C = Mat3::Zero();
+  _T sum_w2 = 0;
+  for(size_t i=0; i<inds.size(); ++i)
+  {
+    const _T w = (dists[i] > eps ? (1.0/dists[i]) : 1) / sum_w;
+    sum_w2 += w*w;
+
+    const auto p = Map<const Vec3>(X.col(inds[i]),3,1);
+    C += w * (p-mu) * (p-mu).transpose();
+  }
+
+  C /= (1.0-sum_w2);
 }
 
 
