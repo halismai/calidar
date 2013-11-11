@@ -75,11 +75,11 @@ _T ComputeNormalFromCovariance(const Eigen::Matrix<_T,3,3>& C, _T* normal)
     case 0: { i2 = evals[1]<evals[2] ? 1 : 2; } break;
     case 1: { i2 = evals[0]<evals[2] ? 0 : 2; } break;
     case 2: { i2 = evals[0]<evals[1] ? 0 : 1; } break;
-    default: mex::error("things should not have come here\n"); //
+    default: mex::error("things should not have come here!\n"); //
   }
 
   memcpy(normal, evecs.col(i1).data(), 3*sizeof(_T));
-  return 2.0*(evals[i1]-evals[i2]) / evals.sum();
+  return 2.0*(evals[i2]-evals[i1]) / evals.sum();
 }
 
 
@@ -100,7 +100,8 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
   mu = Vec3::Zero();
   for(size_t i=0; i<inds.size(); ++i) 
   {
-    const _T w = dists[i] > eps ? (1.0/dists[i]) : 1;
+    const _T d = sqrt(dists[i]); // Euclidean distance
+    const _T w = d > eps ? (1.0/d) : 1;
     sum_w += w;
 
     mu += w * Map<const Vec3>(X.col(inds[i]),3,1);
@@ -112,7 +113,8 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
   _T sum_w2 = 0;
   for(size_t i=0; i<inds.size(); ++i)
   {
-    const _T w = (dists[i] > eps ? (1.0/dists[i]) : 1) / sum_w;
+    const _T d = sqrt(dists[i]);
+    const _T w = (d > eps ? (1.0/d) : 1) / sum_w;
     sum_w2 += w*w;
 
     const auto p = Map<const Vec3>(X.col(inds[i]),3,1);
@@ -120,6 +122,46 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
   }
 
   C /= (1.0-sum_w2);
+}
+
+template <typename _T, typename _Index> inline
+void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
+                                      const std::vector<std::pair<_Index,_T>>& matches,
+                                      Eigen::Matrix<_T,3,1>& mu,
+                                      Eigen::Matrix<_T,3,3>& C)
+{
+  const _T eps = static_cast<_T>(1e-10);
+
+  using namespace Eigen;
+  typedef Eigen::Matrix<_T,3,1> Vec3;
+  typedef Eigen::Matrix<_T,3,3> Mat3;
+
+  _T sum_w = 0;
+  mu = Vec3::Zero();
+  for(size_t i=0; i<matches.size(); ++i)
+  {
+    const _T d = sqrt(matches[i].second);
+    const _T w = d > eps ? (1.0/d) : 1;
+    sum_w += w;
+
+    mu += w*Map<const Vec3>(X.col(matches[i].first));
+  }
+  mu /= sum_w;
+
+  C = Mat3::Zero();
+  _T sum_w2 = 0;
+  for(size_t i=0; i<matches.size(); ++i)
+  {
+    const _T d = sqrt(matches[i].second);
+    const _T w = (d > eps ? (1.0/d) : 1) / sum_w;
+    sum_w2 += w*w;
+
+    const auto p = Map<const Vec3>(X.col(matches[i].first));
+    C += w * (p-mu) * (p-mu).transpose();
+  }
+
+  C /= (1.0-sum_w2);
+
 }
 
 

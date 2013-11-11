@@ -56,6 +56,11 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
                                       Eigen::Matrix<_T,3,1>& mean, 
                                       Eigen::Matrix<_T,3,3>& C);
 
+template <typename _T = double, typename _Index = mwIndex> inline
+void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
+                                      const std::vector<std::pair<_Index,_T>>&,
+                                      Eigen::Matrix<_T,3,1>& mean,
+                                      Eigen::Matrix<_T,3,3>& C);
 
 
 }; // mex

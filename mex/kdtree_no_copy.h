@@ -62,7 +62,7 @@ class KdTreeNoCopy {
    */
   explicit KdTreeNoCopy(const Mat<_T>& data, const int max_leaf_size = 10) :
       data_(data),
-      index_(new index_t(data_.rows(),*this,nanoflann::KDTreeSingleIndexAdaptorParams(max_leaf_size))) {}
+      index_(new index_t(data_.rows(),*this,nanoflann::KDTreeSingleIndexAdaptorParams(max_leaf_size))) { index_->buildIndex(); }
 
   /** dtor */
   virtual ~KdTreeNoCopy() {}
@@ -112,7 +112,7 @@ class KdTreeNoCopy {
 
   /** 
    */
-  void rangesearch(const Mat<_T>& query, const Mat<_T>& range,
+  inline void rangesearch(const Mat<_T>& query, const Mat<_T>& range,
                    std::vector<std::vector<std::pair<_Index,_T>>>& result) const
   {
     result.resize(query.size());
@@ -127,6 +127,15 @@ class KdTreeNoCopy {
 
       result[i].swap(nn);
     }
+  }
+
+  inline void rangesearch(const _T* q, const _T& range,
+                          std::vector<std::pair<_Index,_T>>& result) const
+  {
+    result.reserve(100);
+
+    const nanoflann::SearchParams params;
+    index_->radiusSearch(q, range, result, params);
   }
 
 

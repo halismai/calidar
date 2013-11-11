@@ -18,54 +18,64 @@
 #include "mex/kdtree_no_copy.h"
 #include "mex/covs.h"
 
+//
+// computes adaptive normals with neighborhood radius equals to the farthest
+// point distance from a k-neighborhood
+//
+static const size_t DEFAULT_K = 50;
+
 // 
-// computes normals on 3D data with using a neighborhood with a fixed number of
-// neighbors
-
+// n = compute_adaptive_normals_mex(x, [k=50], [max_num_leaves=10]);
 //
-// n = compute_normals_mex(data, k);
-//
-
 template <typename _T>
 void run(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[])
 {
-  using namespace mex; 
+  using namespace mex;
+  using namespace Eigen; 
+  typedef Eigen::Matrix<_T,3,1> Vec3;
+  typedef Eigen::Matrix<_T,3,3> Mat3;
+
 
   const Mat<_T> X(prhs[0]);
-  const size_t K = getNumber<size_t>(prhs[1]);
+  const size_t K = nrhs>1 ? getNumber<size_t>(prhs[1]) : DEFAULT_K;
 
-  mex::massert(X.rows()==3,"data must be 3xN");
+  massert(X.rows()==3, "data must be 3xN");
+  const mwSize Npts = X.cols();
 
-  Mat<_T> normals(3, X.cols());
-  Mat<_T> scores(1, X.cols());
+  Mat<_T> normals(3, Npts);
   KdTreeNoCopy<_T> tree(X, nrhs>2?getNumber<uint32_t>(prhs[2]):10);
 
-#pragma omp parallel for
-  for(mwSize i=0; i<X.cols(); ++i)
-  {
+  Mat<_T> scores(1, Npts);
+
+#pragma omp parallel for 
+  for(mwSize i=0; i<Npts; ++i)
+  { 
     std::vector<mwSize> inds;
-    std::vector<_T> dists;
+    std::vector<_T> dists; 
     tree.knnsearch(X.col(i), K, inds, dists);
 
-    scores[i] = ComputeNormal(X, inds, normals.col(i));
+    std::vector<std::pair<mwIndex,_T>> matches;
+    tree.rangesearch(X.col(i), dists.back(), matches);
+
+    Vec3 mu;
+    Mat3 C;
+    ComputeWeightedMeanAndCovariance<_T>(X, matches, mu, C);
+    scores[i] = ComputeNormalFromCovariance(C, normals.col(i));
   }
 
   plhs[0] = normals.release();
   if(nlhs>1) plhs[1] = scores.release();
-
 }
 
 void mexFunction(int nlhs, mxArray* plhs[],
                  int nrhs, mxArray const* prhs[])
 {
-  mex::nargchk(2,3,nrhs,"n=compute_normals_mex(data,k,[max_num_leaves])");
+  mex::nargchk(2, 3, nrhs, "n=compute_adaptive_normals_mex(data,[k=50],[max_num_leaves=10])");
   const mxClassID id = mex::classId(prhs[0]);
-  switch(id) 
+  switch(id)
   {
     case mxDOUBLE_CLASS: run<double>(nlhs, plhs, nrhs, prhs); break;
     case mxSINGLE_CLASS: run<float>(nlhs, plhs, nrhs, prhs); break;
     default: mex::error("bad class "+mex::className(prhs[0])+"\n");
   }
-
 }
-
