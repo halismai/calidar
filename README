@@ -21,7 +21,7 @@
                                 ================
 
 Inside the directory mex/ there is a thin wrapper around matlab's external
-interface (MEX), using this interface is straightfoward. You can wrap an
+interface (MEX), using this interface is straightforward. You can wrap an
 existing mxArray* like 
   
  <code>
@@ -64,5 +64,5 @@ Note, any of these files must have a MEX entry point, i.e.
 Otherwise, you will get a linker error.
 
 
-This has been tested on linux box, spefically Debian Wheezy. 
+This has been tested on Linux box, specifically Debian Wheezy. 
 
