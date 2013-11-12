@@ -17,14 +17,22 @@ function p = h2p(H)
   %     motor's rotation axis 
   
   % Hatem Alismail <halismai@cs.cmu.edu> 
-  % Last modified: Mon 11 Nov 2013 05:15:45 PM EST
+  % Last modified: Mon 11 Nov 2013 08:20:12 PM EST
   %
   % License: See LICENSE file
   
   assert(isequal([4 4], size(H)), 'H must a 4x4 homogenous transform');
 
-  p = zeros(5,1); 
-  p(1:3) = mat2euler(H(1:3,1:3));
-  p(4:end) = [H(1,end); H(2,end)]; % x,y translation values
+  ndof = 4;
+  p = zeros(ndof,1); 
+
+  if ndof == 5
+    p(1:3) = mat2euler(H(1:3,1:3));
+    p(4:end) = [H(1,end); H(2,end)]; % x,y translation values
+  else 
+    a = mat2euler(H(1:3,1:3));
+    p(1:2) = a(2:3); % Y and X rot, no Z
+    p(3:end) = [H(1,end); H(2,end)];
+  end 
 
 end % h2p
