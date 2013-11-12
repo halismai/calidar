@@ -24,8 +24,12 @@ function [H,C] = calibrate_lidar(s1,s2, opts)
   H = opts.H_init;
 
   opts = setup_display(opts, s1, s2);
-
   p_prev = opts.h2p(H); % for convergence testing
+
+  if opts.verbose
+    printf_fmt = repmat('% 0.3f ', 1, length(p_prev));
+  end 
+
 
   for it=1:opts.max_outer_iters
     [H,C] = run_optimization(H, s1, s2, opts);
@@ -36,17 +40,18 @@ function [H,C] = calibrate_lidar(s1,s2, opts)
     fprintf('Iteration %d/%d\n', it, opts.max_outer_iters);
     fprintf('  delta rotation    %0.3f degrees\n', dr);
     fprintf('  delta translation %0.3f cm\n', 100*dt);
-    fprintf('  prev_params %0.3f %0.3f %0.3f %0.3f\n', p_prev);
-    fprintf('       params %0.3f %0.3f %0.3f %0.3f\n', p_now);
+    fprintf(['  prev_params ' printf_fmt '\n'], p_prev);
+    fprintf(['       params ' printf_fmt '\n'], p_now);
 
     if dr < opts.R_delta_thresh && dt < opts.t_delta_thresh
-      fprintf('   converged. Change in parameters is too small!\n');
+      fprintf('Converged. Change in parameters is too small! [%f %f]\n',dr,dt);
       break;
     end 
 
     p_prev = p_now;
   end  % iters
 
+  % rescaling the covariance to unit determinant 
   C = C ./ (abs(det(C)).^(1/size(C,1)));
 
 end  % calibrate_lidar

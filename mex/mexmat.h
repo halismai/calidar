@@ -25,6 +25,7 @@
 #include <typeinfo>
 #include <string>
 #include <vector>
+#include <ostream>
 
 namespace mex {
 
@@ -358,13 +359,13 @@ class Mat {
   template <class _MA,
    typename std::enable_if<
               std::is_same<_MA,mxArray>::value,int>::type=0> Mat(_MA* a) :
-                  mx_ptr_(a), owns_(false) {}
+                  mx_ptr_(a), owns_(false) { assertType<_T>(a); }
 
   /** does not allocate memory, wrapper around a cost mxArray */
   template <class _MA,
    typename std::enable_if<
               std::is_same<_MA,const mxArray>::value,int>::type=0> Mat(_MA* a) :
-                  mx_ptr_(const_cast<mxArray*>(a)), owns_(false) {}
+                  mx_ptr_(const_cast<mxArray*>(a)), owns_(false) { assertType<_T>(a); }
 
   /** creates a colmun vector from a std::vector */
   Mat(const std::vector<_T>&);
@@ -447,6 +448,9 @@ class Mat {
   operator       _T()       { return *ptr(); }
   operator const _T() const { return *ptr(); }
 
+  operator const  mxArray*() const { return mx_ptr_; }
+  //operator      mxArray*()       { return mx_ptr_; }  // const cast only
+
 #if defined(MEXMAT_WITH_EIGEN)
   template <typename __T>
   using EigenMatrix = Eigen::Matrix<__T,Eigen::Dynamic,Eigen::Dynamic>;
@@ -465,8 +469,11 @@ class Mat {
   inline EigenMatrixConstMap<_T> toEigen() const {
     return EigenMatrixConstMap<EigenMatrix<_T>>(ptr(),rows(),cols());
   }
-
 #endif 
+
+  template <typename __T>
+  friend std::ostream& operator<<(std::ostream&, const Mat<__T>&);
+  friend std::ostream& operator<<(std::ostream&, const Mat<char>&);
 
  protected:
   void free();

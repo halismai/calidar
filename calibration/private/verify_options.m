@@ -4,7 +4,7 @@ function o = verify_options(o)
   % Verifies options and sets in defaults 
 
   % Hatem Alismail <halismai@cs.cmu.edu> 
-  % Last modified: Mon 11 Nov 2013 06:59:12 PM EST
+  % Last modified: Tue 12 Nov 2013 12:25:13 PM EST
   %
   % License: See LICENSE file
 
@@ -46,6 +46,9 @@ function o = verify_options(o)
   % TODO display related parameters
   o = check_struct_field(o, 'do_show', false); % no display 
   o = check_struct_field(o, 'view_axis', [0 1 0]);
+
+  % verbose 
+  o = check_struct_field(o, 'verbose', true);
 end  % verify_options
 
 

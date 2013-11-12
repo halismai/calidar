@@ -85,6 +85,24 @@ void Mat<_T>::free()
   }
 }
 
+template <typename __T> inline 
+std::ostream& operator<<(std::ostream& os, const Mat<__T>& m)
+{
+  for(mwSize i=0; i<m.rows(); ++i) {
+    for(mwSize j=0; j<m.cols(); ++j)
+      os << m(i, j) << "  ";
+    os << "\n";
+  }
+
+  return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Mat<char>& m)
+{
+  os << getString(m);
+  return os;
+}
+
 }; // mex
 #endif // MEXMAT_MEXMAT_MAT_INL_H
 
