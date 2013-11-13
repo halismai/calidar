@@ -56,8 +56,9 @@ function [H,C] = calibrate_lidar(s1,s2, opts)
     p_prev = p_now;
   end  % iters
 
+  % do not rescale anything
   % rescaling the covariance to unit determinant 
-  C = C ./ (abs(det(C)).^(1/size(C,1)));
+  %C = C ./ (abs(det(C)).^(1/size(C,1)));
 
 end  % calibrate_lidar
 
@@ -113,7 +114,7 @@ function [H,C] = run_optimization(H, s1, s2, opts)
   [p,~,~,~,~,~,J] = lsqnonlin(@error_fn, opts.h2p(H), lb, ub, opts.optim_opts);
   H = opts.p2h(p);
 
-  C = J'*J;
+  C = inv(J'*J); 
 
 end % run_optimization
 
