@@ -13,7 +13,7 @@ classdef KdTree < handle
   % NOTE 
   % We will use single precision data for the tree
   %
-  % Last modified: Sun 10 Nov 2013 05:28:58 PM EST
+  % Last modified: Tue 12 Nov 2013 03:58:32 PM EST
   % <halismai@cs.cmu.edu>
 
   methods
@@ -33,10 +33,10 @@ classdef KdTree < handle
       obj.data = single(data);
       obj.use_nanoflann = (3==exist(strcat('nanoflann_mex.',mexext),'file'));
       if obj.use_nanoflann 
-        fprintf('will use nanoflann_mex\n');
+        %fprintf('will use nanoflann_mex\n');
         obj.tree_handle_ = nanoflann_mex('new', obj.data, max_leaf_size);
       else 
-        fprintf('will use Matlab built-in kdtree\n');
+        %fprintf('will use Matlab built-in kdtree\n');
         obj.tree_handle_ = createns(obj.data', 'NSMethod', 'kdtree');
       end 
     end % KdTree

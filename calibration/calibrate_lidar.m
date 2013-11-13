@@ -37,14 +37,19 @@ function [H,C] = calibrate_lidar(s1,s2, opts)
     p_now = opts.h2p(H);
     [dr,dt] = opts.compute_delta_params(p_prev, p_now);
 
-    fprintf('Iteration %d/%d\n', it, opts.max_outer_iters);
-    fprintf('  delta rotation    %0.3f degrees\n', dr);
-    fprintf('  delta translation %0.3f cm\n', 100*dt);
-    fprintf(['  prev_params ' printf_fmt '\n'], p_prev);
-    fprintf(['       params ' printf_fmt '\n'], p_now);
+    if opts.verbose
+      fprintf('Iteration %d/%d\n', it, opts.max_outer_iters);
+      fprintf('  delta rotation    %0.3f degrees\n', dr);
+      fprintf('  delta translation %0.3f cm\n', 100*dt);
+      fprintf(['  prev_params ' printf_fmt '\n'], p_prev);
+      fprintf(['       params ' printf_fmt '\n'], p_now);
+    end 
 
     if dr < opts.R_delta_thresh && dt < opts.t_delta_thresh
-      fprintf('Converged. Change in parameters is too small! [%f %f]\n',dr,dt);
+      if opts.verbose
+        fprintf('Converged in %d iters. Change in parameters is too small! [%f %f]\n',...
+          it,dr,dt);
+      end 
       break;
     end 
 
@@ -73,7 +78,7 @@ function [H,C] = run_optimization(H, s1, s2, opts)
   % compute normals and correspondences indices 
   [x1,x2] = opts.actuation_func(s1,s2,H);
   [n1,n_scores] = compute_adaptive_normals_mex(x1', opts.normals_k);
-  [i1,i2] = find_correspondences(x1,x2,n1,opts.max_neighbor_dist_sq);
+  [i1,i2] = find_correspondences(x1,x2,opts.max_neighbor_dist_sq);
 
   function e = error_fn(params)
     [x1,x2] = opts.actuation_func(s1, s2, opts.p2h(params));
@@ -113,12 +118,12 @@ function [H,C] = run_optimization(H, s1, s2, opts)
 end % run_optimization
 
 
-function [i1,i2] = find_correspondences(x1, x2, n1, max_d_sq)
-  % function [x1,x2,n1] = find_correspondences(x1, x2, n1, max_d)
+function [i1,i2] = find_correspondences(x1, x2, max_d_sq)
+  % function [i1,i2] = find_correspondences(x1, x2, max_d_sq)
   
   tree = KdTree(x1');
   [i1, dists] = tree.knnsearch(x2', 1);
-  i2 = 1:size(x2,1);
+  %i2 = 1:size(x2,1);
 
   [i1, i2, dists] = keep_unique_corrs(i1, dists);
   ibad = dists > max_d_sq;

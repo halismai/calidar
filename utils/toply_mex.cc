@@ -136,6 +136,7 @@ bool WritePlyWithColorAndNormal(const std::string& fn, const mex::Mat<float>& pt
   WritePlyHeader(fp, Npts);
   WritePlyHeaderWithColor<_C>(fp);
   WritePlyHeaderWithNormal(fp);
+  fprintf(fp, "end_header\n");
 
   for(mwSize i=0; i<pts.cols(); ++i)
   {

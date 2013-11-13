@@ -4,7 +4,7 @@ function o = verify_options(o)
   % Verifies options and sets in defaults 
 
   % Hatem Alismail <halismai@cs.cmu.edu> 
-  % Last modified: Tue 12 Nov 2013 12:25:13 PM EST
+  % Last modified: Tue 12 Nov 2013 03:57:40 PM EST
   %
   % License: See LICENSE file
 
@@ -41,14 +41,22 @@ function o = verify_options(o)
   % delta rotation in DEGREES 
   o = check_struct_field(o, 'R_delta_thresh', 0.1);
   % delta translation in METERS 
-  o = check_struct_field(o, 't_delta_thresh', 3/100);
+  o = check_struct_field(o, 't_delta_thresh', 0.5/100);
 
   % TODO display related parameters
   o = check_struct_field(o, 'do_show', false); % no display 
   o = check_struct_field(o, 'view_axis', [0 1 0]);
+  o = check_struct_field(o, 'plot_hdle1', []);
+  o = check_struct_field(o, 'plot_hdle2', []);
 
   % verbose 
   o = check_struct_field(o, 'verbose', true);
+
+  if o.verbose == false 
+    o.optim_opts.Display = 'none';
+  end 
+
+
 end  % verify_options
 
 

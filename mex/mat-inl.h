@@ -48,7 +48,7 @@ Mat<_T>::Mat(mwSize nd, const mwSize* dims) :
 
 template <typename _T>
 Mat<_T>::Mat(const Mat<_T>& m) :
-    mx_ptr_(mxDuplicateArray(m.mxData())), owns_(true) { mexPrintf("copy ctor\n"); }
+    mx_ptr_(mxDuplicateArray(m.mxData())), owns_(true) { /*mexPrintf("copy ctor\n");*/ }
 
 template <typename _T>
 Mat<_T>& Mat<_T>::operator=(const Mat<_T>& m) 
@@ -57,7 +57,6 @@ Mat<_T>& Mat<_T>::operator=(const Mat<_T>& m)
   {
     free();
     mx_ptr_ = mxDuplicateArray(m.mxData());
-    std::cout << "copy assignment" << std::endl;
     owns_ = true;
   }
 
@@ -69,7 +68,6 @@ Mat<_T>& Mat<_T>::operator=(Mat m)
 {
   std::swap(mx_ptr_, m.mx_ptr_);
   std::swap(owns_, m.owns_);
-  std::cout << "Assignment" << std::endl;
   return *this;
 }
 
@@ -79,7 +77,7 @@ void Mat<_T>::free()
 {
   if(owns_)
   {
-    std::cout << "deleting array" << std::endl;
+    //std::cout << "deleting array" << std::endl;
     mex::destroyArray(mx_ptr_);
     owns_ = false;
   }
