@@ -1,8 +1,26 @@
 #include "sim/sim.h"
 #include "mex/mexmat.h"
 
+#include <Eigen/Geometry>
 
 using namespace Eigen;
+
+/** field of view of the lidar */
+static const double FOV = 270;
+static const double HALF_FOV = FOV / 2.0;
+/** angular resolution of the mirro */
+static const double THETA_RES = 0.25;
+/** number of poitns per scan */
+static const size_t SCAN_LEN = static_cast<size_t>(1 + (FOV/THETA_RES));
+
+/** angular resolution of the motor */
+static const double PHI_RES = 3;
+/** maximum angle for a full rotation */
+static const double PHI_MAX = 360;
+
+static inline double deg2rad(double v) { return v * M_PI / 180.0; }
+
+typedef std::vector<Vector3d, aligned_allocator<Vector3d>> PointVector;
 
 
 void mexFunction(int nlhs, mxArray* plhs[],
@@ -42,5 +60,23 @@ void mexFunction(int nlhs, mxArray* plhs[],
   sim::PolyPlane P1(v1, v2, v3, v4);
   sim::PolyPlane P2(v2, v3, v6, v7);
   sim::PolyPlane P3(v4, v3, v7, v8);
+
+
+  const size_t nrevs = 1; 
+  const size_t nscanlines = nrevs * ceil(PHI_MAX/PHI_RES); // number of scan lines 
+  const size_t npts = nscanlines * SCAN_LEN; // total number of points
+
+  mex::Mat<double> out(3, npts); // output data
+
+#pragma omp parallel for
+  for(size_t j=0; j<nscanlines; ++j)
+  {
+    // motor rotation 
+    const double phi = deg2rad(fmod(j*PHI_RES, PHI_MAX));
+    auto R = Affine3d(AngleAxisd(phi, Vector3d::UnitZ()));
+
+    PointVector scanline; scanline.resize(SCAN_LEN);
+  }
+
   
 }

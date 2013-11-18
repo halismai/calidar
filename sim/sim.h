@@ -104,6 +104,13 @@ class PolyPlane {
   inline const Eigen::Vector3d& normal() const { return plane.normal(); }
   inline const double& distance() const { return plane.distance(); }
 
+  inline bool intersect(const Ray& r, Eigen::Vector3d& hit) const {
+    hit = plane.intersect(r);
+    return inside(hit) && (hit != Eigen::Vector3d::Zero());
+  }
+
+
+
   // assumes that we did intersection already
   inline bool inside(const Eigen::Vector3d& p) const {
     return p.x() >= min_x_ && p.x() <= max_x_ 
