@@ -79,7 +79,9 @@ _T ComputeNormalFromCovariance(const Eigen::Matrix<_T,3,3>& C, _T* normal)
   }
 
   memcpy(normal, evecs.col(i1).data(), 3*sizeof(_T));
-  return 2.0*(evals[i2]-evals[i1]) / evals.sum();
+
+  _T s = evals.sum(); 
+  return fabs(s)>1e-8?(2.0*(evals[i2]-evals[i1]) / s): 0;
 }
 
 
