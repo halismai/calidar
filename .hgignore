@@ -10,6 +10,7 @@ example_data*
 *.xyz
 *.ply
 *.csv
+*.obj
 *.swp
 *.swo
 *.swn
@@ -32,4 +33,5 @@ results/
 build/
 docs/
 paper/
+data/rpm/
 
