@@ -76,6 +76,18 @@ void mexFunction(int nlhs, mxArray* plhs[],
     auto R = Affine3d(AngleAxisd(phi, Vector3d::UnitZ()));
 
     PointVector scanline; scanline.resize(SCAN_LEN);
+    for(size_t i=0; i<scanline.size(); ++i)
+    { 
+      const double theta = deg2rad(-HALF_FOV + i*THETA_RES); // mirro angle
+      const sim::Ray ray(Vector3d::Zero(), R*Vector3d(sin(theta),0.0,cos(theta)));
+
+      Vector3d p[3]; // try intersection with all planes
+      bool hits[3];
+      hits[0] = P1.intersect(ray, p[0]);
+      hits[1] = P2.intersect(ray, p[1]);
+      hits[2] = P3.intersect(ray, p[2]);
+
+    }
   }
 
   

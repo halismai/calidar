@@ -1,6 +1,5 @@
 cntr = [0 0 0]';
-%dims = [10 7 3]';
-dims = [10 10 5]';
+dims = [10 10 10]';
 
 [v f] = createCube; v = bsxfun(@minus, v, mean(v,1));
 T = [...
@@ -18,7 +17,7 @@ pts = T * [v ones(size(v,1),1)]';
 pts = pts(1:3,:)';
 
 
-fp = fopen('cuboid_10x10x5.ply', 'w'); 
+fp = fopen('cuboid.ply', 'w'); 
 fprintf(fp, 'ply\n');
 fprintf(fp, 'format ascii 1.0\n');
 fprintf(fp, 'element vertex %d\n', size(pts,1));

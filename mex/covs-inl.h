@@ -36,8 +36,10 @@ _T ComputeNormal(const Mat<_T>& X, const std::vector<mwIndex>& inds, _T* N)
   //
   Vec3 mu = Vec3::Zero();
   for(size_t i=0; i<inds.size(); ++i)
-    mu += Map<const Vec3>(X.col(inds[i]),3,1);
-  mu /= static_cast<_T>(inds.size());
+    mu += Map<const Vec3, Unaligned>(X.col(inds[i]),3,1);
+
+  if(inds.size())
+    mu /= static_cast<_T>(inds.size());
   
   // 
   // compute the covariance
@@ -45,10 +47,11 @@ _T ComputeNormal(const Mat<_T>& X, const std::vector<mwIndex>& inds, _T* N)
   Mat3 C = Mat3::Zero();
   for(size_t i=0; i<inds.size(); ++i)
   {
-    auto p = Map<const Vec3>(X.col(inds[i]),3,1);
+    auto p = Map<const Vec3, Unaligned>(X.col(inds[i]),3,1);
     C += (p-mu)*(p-mu).transpose();
   }
-  C /= static_cast<_T>(inds.size());
+  if(inds.size()) 
+    C /= static_cast<_T>(inds.size());
 
   return ComputeNormalFromCovariance(C, N);
 }
@@ -106,9 +109,9 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
     const _T w = d > eps ? (1.0/d) : 1;
     sum_w += w;
 
-    mu += w * Map<const Vec3>(X.col(inds[i]),3,1);
+    mu += w * Map<const Vec3, Unaligned>(X.col(inds[i]),3,1);
   }
-  mu /= sum_w; // -1 ?
+  mu /= std::max(eps, sum_w); // -1 ?
 
 
   C = Mat3::Zero();
@@ -119,11 +122,11 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
     const _T w = (d > eps ? (1.0/d) : 1) / sum_w;
     sum_w2 += w*w;
 
-    const auto p = Map<const Vec3>(X.col(inds[i]),3,1);
+    const auto p = Map<const Vec3, Unaligned>(X.col(inds[i]),3,1);
     C += w * (p-mu) * (p-mu).transpose();
   }
 
-  C /= (1.0-sum_w2);
+  C /= std::max(eps, static_cast<_T>((1.0-sum_w2)));
 }
 
 template <typename _T, typename _Index> inline
@@ -146,9 +149,10 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
     const _T w = d > eps ? (1.0/d) : 1;
     sum_w += w;
 
-    mu += w*Map<const Vec3>(X.col(matches[i].first));
+    mu += w*Map<const Vec3, Unaligned>(X.col(matches[i].first));
   }
-  mu /= sum_w;
+
+  mu /= std::max(eps, sum_w);
 
   C = Mat3::Zero();
   _T sum_w2 = 0;
@@ -158,11 +162,11 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
     const _T w = (d > eps ? (1.0/d) : 1) / sum_w;
     sum_w2 += w*w;
 
-    const auto p = Map<const Vec3>(X.col(matches[i].first));
+    const auto p = Map<const Vec3, Unaligned>(X.col(matches[i].first));
     C += w * (p-mu) * (p-mu).transpose();
   }
 
-  C /= (1.0-sum_w2);
+  C /= std::max(eps, static_cast<_T>((1.0-sum_w2))); // avoid divsion by zero (unlikely)
 
 }
 

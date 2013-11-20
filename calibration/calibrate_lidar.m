@@ -1,5 +1,5 @@
-function [H,C] = calibrate_lidar(s1,s2, opts)
-  % function [H,C] = calibrate_lidar(s1,s2, options)
+function [H,C,it] = calibrate_lidar(s1,s2, opts)
+  % function [H,C,it] = calibrate_lidar(s1,s2, options)
   %
   % Runs the lidar internal calibration algorithm 
   %
@@ -86,8 +86,8 @@ function [H,C] = run_optimization(H, s1, s2, opts)
 
     % error on correspondences only, point-to-plane
     % TODO add the gradient
-    e = n_scores(i1).*bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));
-    %e = bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));
+    %e = n_scores(i1).*bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));
+    e = bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));% / length(i1);
   end 
 
   y1=[]; y2=[];
@@ -124,12 +124,14 @@ function [i1,i2] = find_correspondences(x1, x2, max_d_sq)
   
   tree = KdTree(x1');
   [i1, dists] = tree.knnsearch(x2', 1);
-  %i2 = 1:size(x2,1);
+  i2 = 1:size(x2,1);
 
+  %%{
   [i1, i2, dists] = keep_unique_corrs(i1, dists);
   ibad = dists > max_d_sq;
   i1(ibad) = [];
   i2(ibad) = [];
+  %%}
 
   assert(length(i1)>10,'Not enough correspondences, increase max_neighbor_dist_sq');
 end  % find_correspondences
