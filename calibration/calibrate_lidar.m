@@ -103,15 +103,12 @@ function [H,C] = run_optimization(H, s1, s2, opts)
     opts.optim_opts.OutputFcn = @out_fn;
   end 
 
+  opts.lower_bound
+  opts.upper_bound
 
-  %{
-  lb = -[5 5 5 5/100 5/100]';
-  ub = -lb;
-  %}
-  lb = [];
-  ub = [];
 
-  [p,~,~,~,~,~,J] = lsqnonlin(@error_fn, opts.h2p(H), lb, ub, opts.optim_opts);
+  [p,~,~,~,~,~,J] = lsqnonlin(@error_fn, opts.h2p(H), ...
+    opts.lower_bound, opts.upper_bound, opts.optim_opts);
   H = opts.p2h(p);
 
   C = inv(J'*J); 
@@ -126,12 +123,12 @@ function [i1,i2] = find_correspondences(x1, x2, max_d_sq)
   [i1, dists] = tree.knnsearch(x2', 1);
   i2 = 1:size(x2,1);
 
-  %%{
+  %{
   [i1, i2, dists] = keep_unique_corrs(i1, dists);
   ibad = dists > max_d_sq;
   i1(ibad) = [];
   i2(ibad) = [];
-  %%}
+  %}
 
   assert(length(i1)>10,'Not enough correspondences, increase max_neighbor_dist_sq');
 end  % find_correspondences

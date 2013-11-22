@@ -4,7 +4,7 @@ function o = verify_options(o)
   % Verifies options and sets in defaults 
 
   % Hatem Alismail <halismai@cs.cmu.edu> 
-  % Last modified: Tue 12 Nov 2013 03:57:40 PM EST
+  % Last modified: Thu 21 Nov 2013 06:02:52 PM EST
   %
   % License: See LICENSE file
 
@@ -20,6 +20,10 @@ function o = verify_options(o)
   % mechansim is not simple. For simple motions (single tranform) the identity
   % should work find (see example/run_example)
   check_struct_field(o, 'H_init');
+
+  % optional lower and upper bound on the parameters
+  o = check_struct_field(o, 'lower_bound', []);
+  o = check_struct_field(o, 'upper_bound', []);
 
   % optional stuff,they should work fine out of the box
 
