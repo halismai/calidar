@@ -1,1 +1,4 @@
-Eliminate the copy for the kdtree
+- Eliminate the copy for the kdtree. Might not possible with MEX
+- Provide pure Matlab interface for MEX functions
+
+
