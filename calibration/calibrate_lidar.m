@@ -77,16 +77,18 @@ function [H,C] = run_optimization(H, s1, s2, opts)
   %   
 
   % compute normals and correspondences indices 
-  [x1,x2] = opts.actuation_func(s1,s2,H);
+  [x1,x2]       = opts.actuation_func(s1,s2,H);
   [n1,n_scores] = compute_adaptive_normals_mex(x1', opts.normals_k);
-  [i1,i2] = find_correspondences(x1,x2,opts.max_neighbor_dist_sq);
+  [i1,i2]       = find_correspondences(x1,x2, ...
+    opts.max_neighbor_dist_sq,opts.use_unique_corrs);
 
   function e = error_fn(params)
     [x1,x2] = opts.actuation_func(s1, s2, opts.p2h(params));
 
     % error on correspondences only, point-to-plane
     % TODO add the gradient
-    %e = n_scores(i1).*bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));
+
+    %e = n_scores(i1).*bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));% / length(i1);
     e = bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));% / length(i1);
   end 
 
@@ -103,9 +105,8 @@ function [H,C] = run_optimization(H, s1, s2, opts)
     opts.optim_opts.OutputFcn = @out_fn;
   end 
 
-  opts.lower_bound
-  opts.upper_bound
-
+  %opts.lower_bound
+  %opts.upper_bound
 
   [p,~,~,~,~,~,J] = lsqnonlin(@error_fn, opts.h2p(H), ...
     opts.lower_bound, opts.upper_bound, opts.optim_opts);
@@ -116,19 +117,20 @@ function [H,C] = run_optimization(H, s1, s2, opts)
 end % run_optimization
 
 
-function [i1,i2] = find_correspondences(x1, x2, max_d_sq)
-  % function [i1,i2] = find_correspondences(x1, x2, max_d_sq)
+function [i1,i2] = find_correspondences(x1, x2, max_d_sq, use_unique_corrs)
+  % function [i1,i2] = find_correspondences(x1, x2, max_d_sq, use_unique_corrs)
   
   tree = KdTree(x1');
   [i1, dists] = tree.knnsearch(x2', 1);
-  i2 = 1:size(x2,1);
 
-  %{
-  [i1, i2, dists] = keep_unique_corrs(i1, dists);
-  ibad = dists > max_d_sq;
-  i1(ibad) = [];
-  i2(ibad) = [];
-  %}
+  if use_unique_corrs
+    [i1, i2, dists] = keep_unique_corrs(i1, dists);
+    ibad = dists > max_d_sq;
+    i1(ibad) = [];
+    i2(ibad) = [];
+  else 
+    i2 = 1:size(x2,1);
+  end 
 
   assert(length(i1)>10,'Not enough correspondences, increase max_neighbor_dist_sq');
 end  % find_correspondences
@@ -146,11 +148,12 @@ function opts = setup_display(opts, s1, s2)
   if opts.do_show
     [x1,x2] = opts.actuation_func(s1,s2,opts.H_init);
     hold off; 
-    opts.plot_hdle1 = plot33(x1'); hold on;
-    opts.plot_hdle2 = plot33(x2');
+    opts.plot_hdle1 = plot33(x1','.',8); hold on;
+    opts.plot_hdle2 = plot33(x2','.',8);
     set(opts.plot_hdle1, 'color', [255 180 0]/255);
     set(opts.plot_hdle2, 'color', [0 80 255]/255);
     %view(opts.view_axis);
+    view([0 0 1])
     drawnow;
   end 
 end 

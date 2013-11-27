@@ -4,7 +4,7 @@ function o = verify_options(o)
   % Verifies options and sets in defaults 
 
   % Hatem Alismail <halismai@cs.cmu.edu> 
-  % Last modified: Thu 21 Nov 2013 06:02:52 PM EST
+  % Last modified: Tue 26 Nov 2013 06:01:13 PM EST
   %
   % License: See LICENSE file
 
@@ -37,6 +37,9 @@ function o = verify_options(o)
   o = check_struct_field(o, 'normals_k', 30);
   % maximum distance for a closest neighbor (squared meters)
   o = check_struct_field(o, 'max_neighbor_dist_sq', 0.5^2);
+
+  % use unique correspondences only for the optimization
+  o = check_struct_field(o, 'use_unique_corrs', true);
 
   % TODO gradient of the cost function 
   
