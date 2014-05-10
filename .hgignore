@@ -12,6 +12,7 @@ example_data*
 *.csv
 *.obj
 *.swp
+*.pcd
 *.swo
 *.swn
 *.fig
