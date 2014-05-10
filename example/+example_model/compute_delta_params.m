@@ -6,5 +6,5 @@ function [dr,dt] = compute_delta_params(p1,p2)
   else
     dr = norm(p1(1:2) - p2(1:2));
     dt = norm(p1(3:end) - p2(3:end));
-  end 
-end 
+  end
+end

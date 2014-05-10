@@ -1,7 +1,7 @@
 function angles = mat2euler(R)
-% MAT2EULER - Finds Euler angles from a 3x3 
+% MAT2EULER - Finds Euler angles from a 3x3
 %   rotation matrix
-%   
+%
 % OUTPUTS:
 %   alpha - rotation angle around Z axis
 %   beta  - rotation angle around Y axis

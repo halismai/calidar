@@ -1,20 +1,20 @@
 function [H,C,it] = calibrate_lidar(s1,s2, opts)
   % function [H,C,it] = calibrate_lidar(s1,s2, options)
   %
-  % Runs the lidar internal calibration algorithm 
+  % Runs the lidar internal calibration algorithm
   %
-  % INPUT 
-  %    s1,s2      the two half-scan splits 
-  %    options    struct with calibration options and function handles 
+  % INPUT
+  %    s1,s2      the two half-scan splits
+  %    options    struct with calibration options and function handles
   %
-  % OUTPUT 
-  %    H          the calibration 
+  % OUTPUT
+  %    H          the calibration
   %    C          Covariance of the estimated parameters
   %
   % NOTE the output calibration does not have to be single matrix, it could be a
-  %  struct with more than a single transformation. See examples/ 
-  
-  % Hatem Alismail <halismai@cs.cmu.edu> 
+  %  struct with more than a single transformation. See examples/
+
+  % Hatem Alismail <halismai@cs.cmu.edu>
   % Last modifiedx: Mon 11 Nov 2013 06:22:41 PM EST
   %
   % License: See LICENSE file
@@ -28,7 +28,7 @@ function [H,C,it] = calibrate_lidar(s1,s2, opts)
 
   if opts.verbose
     printf_fmt = repmat('% 0.3f ', 1, length(p_prev));
-  end 
+  end
 
 
   for it=1:opts.max_outer_iters
@@ -39,25 +39,25 @@ function [H,C,it] = calibrate_lidar(s1,s2, opts)
 
     if opts.verbose
       fprintf('Iteration %d/%d\n', it, opts.max_outer_iters);
-      fprintf('  delta rotation    %0.3f degrees\n', dr);
-      fprintf('  delta translation %0.3f cm\n', 100*dt);
+      fprintf('  delta rotation    %0.3e degrees\n', dr);
+      fprintf('  delta translation %0.3e cm\n', 100*dt);
       fprintf(['  prev_params ' printf_fmt '\n'], p_prev);
       fprintf(['       params ' printf_fmt '\n'], p_now);
-    end 
+    end
 
     if dr < opts.R_delta_thresh && dt < opts.t_delta_thresh
       if opts.verbose
         fprintf('Converged in %d iters. Change in parameters is too small! [%f %f]\n',...
           it,dr,dt);
-      end 
+      end
       break;
-    end 
+    end
 
     p_prev = p_now;
   end  % iters
 
   % do not rescale anything
-  % rescaling the covariance to unit determinant 
+  % rescaling the covariance to unit determinant
   %C = C ./ (abs(det(C)).^(1/size(C,1)));
 
 end  % calibrate_lidar
@@ -68,16 +68,17 @@ function [H,C] = run_optimization(H, s1, s2, opts)
   %
   % Runs the optimization with the current estimate of the calibration 'H'
   %
-  % INPUT 
+  % INPUT
   %   H       current estimate of calibratrion parameters
-  %   s1      the first half-scan 
-  %   s2      the second half-scan 
-  %   opts    algorithm options 
-  % OUTPUT 
-  %   
+  %   s1      the first half-scan
+  %   s2      the second half-scan
+  %   opts    algorithm options
+  % OUTPUT
+  %
 
-  % compute normals and correspondences indices 
+  % compute normals and correspondences indices
   [x1,x2]       = opts.actuation_func(s1,s2,H);
+  fprintf('calling compute_adaptive_normals_mex with %d\n',opts.normals_k);
   [n1,n_scores] = compute_adaptive_normals_mex(x1', opts.normals_k);
   [i1,i2]       = find_correspondences(x1,x2, ...
     opts.max_neighbor_dist_sq,opts.use_unique_corrs);
@@ -89,8 +90,8 @@ function [H,C] = run_optimization(H, s1, s2, opts)
     % TODO add the gradient
 
     %e = n_scores(i1).*bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));% / length(i1);
-    e = bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));% / length(i1);
-  end 
+    e = bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1)) / sqrt(length(i1));
+  end
 
   y1=[]; y2=[];
   function s = out_fn(pp, varargin)
@@ -99,11 +100,11 @@ function [H,C] = run_optimization(H, s1, s2, opts)
     set(opts.plot_hdle1,'xdata',y1(i1,1),'ydata',y1(i1,2),'zdata',y1(i1,3));
     set(opts.plot_hdle2,'xdata',y2(i2,1),'ydata',y2(i2,2),'zdata',y2(i2,3));
     drawnow;
-  end 
+  end
 
   if ~isempty(opts.plot_hdle1) && ~isempty(opts.plot_hdle2)
     opts.optim_opts.OutputFcn = @out_fn;
-  end 
+  end
 
   %opts.lower_bound
   %opts.upper_bound
@@ -112,14 +113,14 @@ function [H,C] = run_optimization(H, s1, s2, opts)
     opts.lower_bound, opts.upper_bound, opts.optim_opts);
   H = opts.p2h(p);
 
-  C = inv(J'*J); 
+  C = inv(J'*J);
 
 end % run_optimization
 
 
 function [i1,i2] = find_correspondences(x1, x2, max_d_sq, use_unique_corrs)
   % function [i1,i2] = find_correspondences(x1, x2, max_d_sq, use_unique_corrs)
-  
+
   tree = KdTree(x1');
   [i1, dists] = tree.knnsearch(x2', 1);
 
@@ -128,26 +129,26 @@ function [i1,i2] = find_correspondences(x1, x2, max_d_sq, use_unique_corrs)
     ibad = dists > max_d_sq;
     i1(ibad) = [];
     i2(ibad) = [];
-  else 
+  else
     i2 = 1:size(x2,1);
-  end 
+  end
 
   assert(length(i1)>10,'Not enough correspondences, increase max_neighbor_dist_sq');
 end  % find_correspondences
 
 function [i1,i2,d] = keep_unique_corrs(i1,d)
-  i2 = 1:length(i1); 
-  [d,is] = sort(d); 
+  i2 = 1:length(i1);
+  [d,is] = sort(d);
   i1 = i1(is); i2 = i2(is);
 
   [i1,is] = unique(i1); i2 = i2(is); d = d(is);
-end 
+end
 
 
 function opts = setup_display(opts, s1, s2)
   if opts.do_show
     [x1,x2] = opts.actuation_func(s1,s2,opts.H_init);
-    hold off; 
+    hold off;
     opts.plot_hdle1 = plot33(x1','.',8); hold on;
     opts.plot_hdle2 = plot33(x2','.',8);
     set(opts.plot_hdle1, 'color', [255 180 0]/255);
@@ -155,5 +156,5 @@ function opts = setup_display(opts, s1, s2)
     %view(opts.view_axis);
     view([0 0 1])
     drawnow;
-  end 
-end 
+  end
+end

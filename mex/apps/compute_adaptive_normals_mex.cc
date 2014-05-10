@@ -24,14 +24,14 @@
 //
 static const size_t DEFAULT_K = 50;
 
-// 
+//
 // n = compute_adaptive_normals_mex(x, [k=50], [max_num_leaves=10]);
 //
 template <typename _T>
 void run(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[])
 {
   using namespace mex;
-  using namespace Eigen; 
+  using namespace Eigen;
   typedef Eigen::Matrix<_T,3,1> Vec3;
   typedef Eigen::Matrix<_T,3,3> Mat3;
 
@@ -42,16 +42,18 @@ void run(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[])
   massert(X.rows()==3, "data must be 3xN");
   const mwSize Npts = X.cols();
 
+  massert(Npts > 6, "Not enough points");
+
   Mat<_T> normals(3, Npts);
   KdTreeNoCopy<_T> tree(X, nrhs>2?getNumber<uint32_t>(prhs[2]):10);
 
   Mat<_T> scores(1, Npts);
 
-#pragma omp parallel for 
+#pragma omp parallel for
   for(mwSize i=0; i<Npts; ++i)
-  { 
+  {
     std::vector<mwSize> inds;
-    std::vector<_T> dists; 
+    std::vector<_T> dists;
     tree.knnsearch(X.col(i), K, inds, dists);
 
     std::vector<std::pair<mwIndex,_T>> matches;

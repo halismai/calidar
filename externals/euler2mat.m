@@ -1,10 +1,10 @@
 function R = euler2mat(alpha, beta, gamma)
-% EULER2MAT - Converts an Euler representation 
+% EULER2MAT - Converts an Euler representation
 %   of a 3D rotation to a 3x3 orthogonal matrix
 %   The rotation around X axis is applied first
 %   followed by the rotation around Y axis, and
 %   the rotation around Z axis is applied last.
-%   
+%
 % INPUTS:
 %   alpha - rotation angle around Z axis in degrees
 %   beta  - rotation angle around Y axis in degrees

@@ -39,7 +39,7 @@ static inline void warning(const std::string& msg) { mexWarning(msg.c_str()); }
 static inline void printf(const char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  mexPrintf(fmt, args); 
+  mexPrintf(fmt, args);
   va_end(args);
 }
 
@@ -74,8 +74,8 @@ template <typename _T> inline void free(_T* p) { mxFree(p); }
 inline void* getData(const mxArray* a) { return mxGetData(a); }
 
 
-// 
-// various utilties 
+//
+// various utilties
 //
 inline mwSize numel (const mxArray* a) { return mxGetNumberOfElements(a); }
 inline mwSize rows  (const mxArray* a) { return mxGetM(a); }
@@ -83,11 +83,11 @@ inline mwSize cols  (const mxArray* a) { return mxGetN(a); }
 inline mwSize ndims (const mxArray* a) { return mxGetNumberOfDimensions(a); }
 
 inline const mwSize* dims(const mxArray* a) { return mxGetDimensions(a); }
-/** 
- * \return a dimension based on D (zero-based) 
+/**
+ * \return a dimension based on D (zero-based)
  *
  * E.g. to get the row of a matrix  dim<0>(a)
- * and the cols dim<1>(a) 
+ * and the cols dim<1>(a)
  * if you have an image for example, dim<2>(a) is the number of channels
  *
  * If the matrix does not have the specified dimension, the function returns 0
@@ -110,9 +110,9 @@ inline bool isClass  (const mxArray* a, const std::string & name)  {
   return mxIsClass(a,name.c_str()); }
 inline bool isFnHandle(const mxArray* a)  { return mxIsFunctionHandle(a); }
 inline bool isFloatingPoint(const mxArray* a) {
-  return isDouble(a) || isSingle(a); 
+  return isDouble(a) || isSingle(a);
 }
-inline bool isVector(const mxArray* a) { 
+inline bool isVector(const mxArray* a) {
   return (rows(a)==1 && cols(a) > 1) || (cols(a)==1 && rows(a) > 1);
 }
 inline bool isScalar(const mxArray* a) { return rows(a)==1 && (1==cols(a)); }
@@ -131,7 +131,7 @@ public:
  static const mxComplexity complex_t = mxCOMPLEX;
  static const mxComplexity real_t    = mxREAL;
  static std::string string() { return "unkown"; }
-}; // traits_ 
+}; // traits_
 
 template<> class traits_<bool> {
 public:
@@ -214,7 +214,7 @@ typedef void type;
 /** asserts (causes a matlab error) if the underlying data type of a is not T */
 template <typename _T> inline void assertType(const mxArray* a) {
   mex::massert(traits_<_T>::type == classId(a),
-               "expcted class " + traits_<_T>::string() + ", but got a " + 
+               "expcted class " + traits_<_T>::string() + ", but got a " +
                className(a) + " instead");
 }
 
@@ -231,9 +231,9 @@ inline void assertSize(const mxArray* a, mwSize m, mwSize n, mwSize k,
   massert(rows(a)==m && cols(a)==n && dim<2>(a)==k, msg);
 }
 
-/** 
+/**
  * \return a number from 'a'
- * the function does not check for narrowing type conversion 
+ * the function does not check for narrowing type conversion
  *
  * if check is true, the function will assert if the array is not a scalar
  */
@@ -260,7 +260,7 @@ mwSize idx_col_major(mwSize nrows, mwSize r, mwSize c) {
   return r + c*nrows;
 }
 class size {
- public: 
+ public:
   size() : rows_(0), cols_(0) {}
   size(const mxArray* a) : rows_(a?rows(a):0), cols_(a?cols(a):0) {}
   size(mwSize m, mwSize n) : rows_(m), cols_(n) {}
@@ -275,14 +275,14 @@ class size {
 }; // internal
 
 
-template <typename _T = double, mxComplexity C = mxREAL> inline 
+template <typename _T = double, mxComplexity C = mxREAL> inline
 mxArray* newMexMatrix(mwSize m, mwSize n) {
   return mxCreateNumericMatrix(m,n,traits_<_T>::type,C);
 }
 
 mxArray* newMexCell(mwSize nr, mwSize nc) { return mxCreateCellMatrix(nr,nc); }
 
-template <typename _T = double> inline 
+template <typename _T = double> inline
 mxArray* newMexMatrix(mwSize m, mwSize n, mxComplexity c) {
   return mxCreateNumericMatrix(m,n,traits_<_T>::type, c);
 }
@@ -293,7 +293,7 @@ mxArray* newMexArray(mwSize m, mwSize n, mwSize k) {
   return mxCreateNumericArray(3, dims, traits_<_T>::type, C);
 }
 
-template <typename _T = double> inline 
+template <typename _T = double> inline
 mxArray* newMexArray(mwSize m, mwSize n, mwSize k, mxComplexity c = mxREAL) {
   mwSize dims[3] = {m,n,k};
   return mxCreateNumericArray(3, dims, traits_<_T>::type, c);
@@ -345,7 +345,7 @@ std::string id2string(mxClassID);
 
 template <typename _T = double>
 class Mat {
- public: 
+ public:
   /** empty ctor creates an empty array */
   Mat();
   /** move ctor */
@@ -399,7 +399,7 @@ class Mat {
   Mat<__T> RowVector(mwSize n) { return Mat<__T>(1,n,__C); }
 
   template <typename __T=double, mxComplexity __C = mxREAL> inline static
-  Mat<__T> Scalar(__T v=static_cast<__T>(0)) { 
+  Mat<__T> Scalar(__T v=static_cast<__T>(0)) {
     Mat<__T> ret(1,1,__C); ret[0] = v; return ret;
   }
 
@@ -414,10 +414,10 @@ class Mat {
 
   inline       _T* ptr()       { return static_cast<_T*>(data()); }
   inline const _T* ptr() const { return static_cast<const _T*>(data()); }
-  
 
-  inline       _T* col(int i)       { return &(this->operator()(0,i)); } 
-  inline const _T* col(int i) const { return &(this->operator()(0,i)); } 
+
+  inline       _T* col(int i)       { return &(this->operator()(0,i)); }
+  inline const _T* col(int i) const { return &(this->operator()(0,i)); }
 
   inline mwSize length() const { return mex::length(mx_ptr_); }
   inline mwSize rows()   const { return mex::rows(mx_ptr_); }
@@ -435,7 +435,7 @@ class Mat {
   /** relinquishes ownership of the pointer */
   mxArray* release() { owns_=false; return mx_ptr_; }
 
- public: 
+ public:
   inline       _T& operator()(int r,int c)       { return ptr()[sub2ind(r,c)]; }
   inline const _T& operator()(int r,int c) const { return ptr()[sub2ind(r,c)]; }
 
@@ -469,7 +469,7 @@ class Mat {
   inline EigenMatrixConstMap<_T> toEigen() const {
     return EigenMatrixConstMap<EigenMatrix<_T>>(ptr(),rows(),cols());
   }
-#endif 
+#endif
 
   template <typename __T>
   friend std::ostream& operator<<(std::ostream&, const Mat<__T>&);
@@ -494,11 +494,11 @@ class Cell {
   virtual ~Cell() { free(); }
 
   template <class C, typename std::enable_if<
-   (std::is_same<C, mxArray>::value),int>::type=0> Cell(C* c) : 
+   (std::is_same<C, mxArray>::value),int>::type=0> Cell(C* c) :
        mx_ptr_(c), owns_(false) { massert(isCell(mx_ptr_)); }
 
   template <class C, typename std::enable_if<
-   (std::is_same<C, const mxArray>::value),int>::type=0> Cell(C* c) : 
+   (std::is_same<C, const mxArray>::value),int>::type=0> Cell(C* c) :
        mx_ptr_(const_cast<mxArray*>(c)), owns_(false) { massert(isCell(mx_ptr_)); }
 
   Cell(mwSize m, mwSize n) : mx_ptr_(newMexCell(m,n)), owns_(true) {}
@@ -506,12 +506,12 @@ class Cell {
   Cell(Cell&& c) : mx_ptr_(c.mx_ptr_), owns_(c.owns_) { c.owns_=false; }
 
   inline const mxArray* operator()(mwIndex i, mwIndex j) const {
-    mwIndex a[] = {i,j}; 
+    mwIndex a[] = {i,j};
     return mxGetCell(mx_ptr_, mxCalcSingleSubscript(mx_ptr_, 2, a));
   }
 
   inline mxArray* operator()(mwIndex i, mwIndex j) {
-    mwIndex a[] = {i,j}; 
+    mwIndex a[] = {i,j};
     return mxGetCell(mx_ptr_, mxCalcSingleSubscript(mx_ptr_, 2, a));
   }
 
@@ -519,7 +519,7 @@ class Cell {
     return mxGetCell(mx_ptr_, ii);
   }
 
-  inline mxArray* operator[](mwIndex ii) { 
+  inline mxArray* operator[](mwIndex ii) {
     return mxGetCell(mx_ptr_, ii);
   }
 
@@ -530,7 +530,7 @@ class Cell {
  protected:
   inline void free() {
     if(owns_) {
-      mex::destroyArray(mx_ptr_); 
+      mex::destroyArray(mx_ptr_);
       owns_ = false;
     }
   }
@@ -548,7 +548,7 @@ template <typename _T>
 class ClassHandle {
   static const uint8_t VALID_ID = 0xf0;
  public:
-  ClassHandle(_T* p) : ptr_(p), id_(VALID_ID), 
+  ClassHandle(_T* p) : ptr_(p), id_(VALID_ID),
     name_(typeid(_T).name()) {}
 
   virtual ~ClassHandle() {
@@ -576,7 +576,7 @@ class ClassHandle {
     ClassHandle<_T>* ret = reinterpret_cast<ClassHandle<_T>*>(
         mex::getNumber<uint64_t>(a));
 
-    mex::massert(ret->valid(), "not a valid class of " + 
+    mex::massert(ret->valid(), "not a valid class of " +
                  std::string(typeid(_T).name()));
     return ret;
   }

@@ -24,7 +24,7 @@ inline double randrange(double min_v, double max_v) {
 
 class Range {
  public:
-  Range(double min_v, double max_v) : 
+  Range(double min_v, double max_v) :
       min_v_(min_v), max_v_(max_v) { mex::massert(min_v<=max_v); }
 
   inline bool inBounds(double v) const { return v>=min_v_ && v<=max_v_; }
@@ -37,7 +37,7 @@ class Range {
 /** ray class defined by the ray's origin and a unit norm direction */
 class Ray {
  public:
-  Ray(const Vector3d& o = Vector3d::Zero(), const Vector3d& d = Vector3d::UnitZ()) : 
+  Ray(const Vector3d& o = Vector3d::Zero(), const Vector3d& d = Vector3d::UnitZ()) :
       origin(o), direction(d) {
         //direction = direction / direction.norm();
         inv_dir = Vector3d(1/direction.x(), 1/direction.y(), 1/direction.z());
@@ -55,7 +55,7 @@ class Ray {
 class Plane {
  public:
   Plane(const Vector3d& top_left, const Vector3d& top_right,
-        const Vector3d& btm_right,const Vector3d& btm_left) : 
+        const Vector3d& btm_right,const Vector3d& btm_left) :
       V_{top_left, top_right, btm_right, btm_left}
   {
     // compute the normal
@@ -65,8 +65,8 @@ class Plane {
   }
 
   /** performs ray intersection  and returns the intersection point. If no
-   * intersect is found, the function return a vector of zeros 
-   */ 
+   * intersect is found, the function return a vector of zeros
+   */
   Vector3d intersect(const Ray& r) const;
 
   /** returns true if the point lies within the vertices of the plane */
@@ -96,12 +96,12 @@ class World {
 
 }; // World
 
-Vector3d Plane::intersect(const Ray& r) const 
+Vector3d Plane::intersect(const Ray& r) const
 {
   const double nn = distance_ + dot(normal_, r.origin);
   const double dd = dot(normal_, r.direction);
 
-  if(fabs(dd) < 1e-8) // parallel 
+  if(fabs(dd) < 1e-8) // parallel
     return Vector3d::Zero();
 
   const double t = -nn / dd;
@@ -130,8 +130,8 @@ class BBox {
   BBox(const Vector3d& p1, const Vector3d& p2) :
       p_min_(p1), p_max_(p2) {}
 
-  inline bool inside(const Vector3d& p) const { 
-    return p.x() >= p_min_.x() && p.x() <= p_max_.x() 
+  inline bool inside(const Vector3d& p) const {
+    return p.x() >= p_min_.x() && p.x() <= p_max_.x()
         && p.y() >= p_min_.y() && p.y() <= p_max_.y()
         && p.z() >= p_min_.z() && p.z() <= p_max_.z();
   }
@@ -151,19 +151,19 @@ class BBox {
   }
 
   bool intersect(const Vector3d& p1, const Vector3d& p2, Vector3d& hit) const {
-    // quick check 
+    // quick check
     if(p1.x() < p_min_.x() && p2.x() < p_min_.x()) return false;
     if(p1.y() < p_min_.y() && p2.y() < p_min_.y()) return false;
-    if(p1.z() < p_min_.z() && p2.z() < p_min_.z()) return false; 
+    if(p1.z() < p_min_.z() && p2.z() < p_min_.z()) return false;
 
     if(p1.x() > p_max_.x() && p2.x() > p_max_.x()) return false;
     if(p1.y() > p_max_.y() && p2.y() > p_max_.y()) return false;
     if(p1.z() > p_max_.z() && p2.z() > p_max_.z()) return false;
 
-    return 
-        (Intersect(p1.x() - p_min_.x(), p2.x() - p_min_.x(), p1, p2, hit) && inBox(hit, 'x')) || 
-        (Intersect(p1.y() - p_min_.y(), p2.y() - p_min_.y(), p1, p2, hit) && inBox(hit, 'y')) || 
-        (Intersect(p1.z() - p_min_.z(), p2.z() - p_min_.z(), p1, p2, hit) && inBox(hit, 'z')) || 
+    return
+        (Intersect(p1.x() - p_min_.x(), p2.x() - p_min_.x(), p1, p2, hit) && inBox(hit, 'x')) ||
+        (Intersect(p1.y() - p_min_.y(), p2.y() - p_min_.y(), p1, p2, hit) && inBox(hit, 'y')) ||
+        (Intersect(p1.z() - p_min_.z(), p2.z() - p_min_.z(), p1, p2, hit) && inBox(hit, 'z')) ||
         (Intersect(p1.x() - p_max_.x(), p2.x() - p_max_.x(), p1, p2, hit) && inBox(hit, 'x')) ||
         (Intersect(p1.y() - p_max_.y(), p2.y() - p_max_.y(), p1, p2, hit) && inBox(hit, 'y')) ||
         (Intersect(p1.z() - p_max_.z(), p2.z() - p_max_.z(), p1, p2, hit) && inBox(hit, 'z'));
@@ -172,8 +172,8 @@ class BBox {
   inline bool inBox(const Vector3d& p, const char axis) const
   {
     switch(axis) {
-      case 'x': 
-        return p.z() > p_min_.z() && p.z() < p_max_.z() 
+      case 'x':
+        return p.z() > p_min_.z() && p.z() < p_max_.z()
             && p.y() > p_min_.y() && p.y() < p_max_.y();
       case 'y':
         return p.z() > p_min_.z() && p.z() < p_max_.z()
@@ -199,7 +199,7 @@ void mexFunction(int nlhs, mxArray* plhs[],
 {
 
   Affine3d H = Affine3d::Identity();
-  if(nrhs > 0) 
+  if(nrhs > 0)
     H = Affine3d(Map<Matrix4d>(mxGetPr(prhs[0])));
 
   std::cout << "Using calibration " << H.matrix() << std::endl;
@@ -213,7 +213,7 @@ void mexFunction(int nlhs, mxArray* plhs[],
   const int SCAN_LEN = 1 + (FOV / THETA_RES); // number of points per scan line
 
   const int N_REVS = 2; // total number of revs for the motor
-  const double DELTA_PHI = 0.9; // motor tick 
+  const double DELTA_PHI = 0.9; // motor tick
   const double MAX_PHI = 360.0; // angle for a full scan_len
 
   const int N_SCANLINES = N_REVS * ceil(MAX_PHI / DELTA_PHI); // total number of scanlines
@@ -223,7 +223,7 @@ void mexFunction(int nlhs, mxArray* plhs[],
   mex::Mat<double> out(3, N_PTS);
 
 #pragma omp parallel for
-  for(int j=0; j<N_SCANLINES; ++j) 
+  for(int j=0; j<N_SCANLINES; ++j)
   {
     const double PHI = deg2rad(fmod(j*DELTA_PHI + randrange(0,0.01), MAX_PHI)); // current motor angle
     Affine3d R = Affine3d(AngleAxisd(PHI, Vector3d::UnitZ())); // rotated scanline
@@ -233,16 +233,16 @@ void mexFunction(int nlhs, mxArray* plhs[],
     scanline.resize(SCAN_LEN);
 
 #pragma omp parallel for
-    for(int i=0; i<SCAN_LEN; ++i) 
+    for(int i=0; i<SCAN_LEN; ++i)
     {
       const double THETA = deg2rad(-HALF_FOV + i*THETA_RES);
       //const Ray ray(Vector3d::Zero(), R*H*Vector3d(sin(THETA), 0.0, cos(THETA)));
       Ray ray(H*Vector3d::Zero(), R*Vector3d(sin(THETA),0.0,cos(THETA)));
       // apply the calibration to the ray
       //ray.origin = H * ray.origin;
-      // apply the spin 
+      // apply the spin
       //ray.direction = R * ray.direction;
-      //double t = 0; 
+      //double t = 0;
       //scanline[i] = box.intersect(ray, t) ? ray(t) : Vector3d::Zero();
       if(!box.intersect(ray.origin, ray.origin + 100*ray.direction, scanline[i]))
         scanline[i] = Vector3d::Zero();

@@ -6,14 +6,14 @@ opts = struct('actuation_func', @example_sensor.actuate_split, ...
   'do_show', true, ...
   'max_outer_iters', 10);
 
-if ~exist('data', 'var') 
+if ~exist('data', 'var')
   % loading this is slow, so we do it once
   data = example_sensor.load('data/spinning_data_example.csv');
-end 
+end
 
-min_range = 0.3; 
+min_range = 0.3;
 max_range = 8.0;
-% split the scan data based on the actuation mechansim 
+% split the scan data based on the actuation mechansim
 [s1,s2] = example_sensor.split(data, min_range, max_range);
 
 

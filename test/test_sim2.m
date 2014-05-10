@@ -1,4 +1,4 @@
-N = [0 0 1]'; 
+N = [0 0 1]';
 d = 5;
 
 w = 5;
@@ -20,7 +20,7 @@ t_z = 0;
 t_off = repmat([t_y; t_y; t_z], 1, length(theta));
 
 pts = [];
-for i=1:length(phi) 
+for i=1:length(phi)
 
   c = cos(phi(i));
   s = sin(phi(i));
@@ -34,5 +34,5 @@ for i=1:length(phi)
 
   ii = find(abs(p(1,:)) <= w & abs(p(2,:)) <= h & p(3,:) < d);
   pts = [pts p(:,ii)];
-  
-end 
+
+end
