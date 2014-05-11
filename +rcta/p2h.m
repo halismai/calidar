@@ -10,8 +10,11 @@ function H = p2h(p)
   %
 
   H = eye(4);
-  %H(1:3,1:3) = euler2mat(p(1),p(2),0.0);
-  %H(2:3,end) = p(3:end);
-  H(2:3,end) = p;
+  if length(p) > 2
+    H(1:3,1:3) = euler2mat(p(1),p(2),0.0);
+    H(2:3,end) = p(3:end);
+  else
+    H(2:3,end) = p;
+  end
 
 end

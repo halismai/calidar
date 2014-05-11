@@ -18,7 +18,7 @@
 #ifndef MEXMAT_MEXMAT_MAT_INL_H
 #define MEXMAT_MEXMAT_MAT_INL_H
 
-#include <iostream> 
+#include <iostream>
 
 namespace mex {
 
@@ -51,7 +51,7 @@ Mat<_T>::Mat(const Mat<_T>& m) :
     mx_ptr_(mxDuplicateArray(m.mxData())), owns_(true) { /*mexPrintf("copy ctor\n");*/ }
 
 template <typename _T>
-Mat<_T>& Mat<_T>::operator=(const Mat<_T>& m) 
+Mat<_T>& Mat<_T>::operator=(const Mat<_T>& m)
 {
   if(this != &m)
   {
@@ -83,7 +83,7 @@ void Mat<_T>::free()
   }
 }
 
-template <typename __T> inline 
+template <typename __T> inline
 std::ostream& operator<<(std::ostream& os, const Mat<__T>& m)
 {
   for(mwSize i=0; i<m.rows(); ++i) {

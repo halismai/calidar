@@ -69,15 +69,19 @@ void run(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[])
   if(nlhs>1) plhs[1] = scores.release();
 }
 
+static const char* USAGE =
+"n=compute_adaptive_normals_mex(data,[k=50],[max_num_leaves=10])";
+
 void mexFunction(int nlhs, mxArray* plhs[],
                  int nrhs, mxArray const* prhs[])
 {
-  mex::nargchk(2, 3, nrhs, "n=compute_adaptive_normals_mex(data,[k=50],[max_num_leaves=10])");
+  mex::nargchk(2, 3, nrhs, USAGE);
   const mxClassID id = mex::classId(prhs[0]);
-  switch(id)
-  {
+
+  switch(id) {
     case mxDOUBLE_CLASS: run<double>(nlhs, plhs, nrhs, prhs); break;
     case mxSINGLE_CLASS: run<float>(nlhs, plhs, nrhs, prhs); break;
     default: mex::error("bad class "+mex::className(prhs[0])+"\n");
   }
+
 }

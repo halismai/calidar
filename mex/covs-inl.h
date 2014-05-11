@@ -19,9 +19,11 @@
 #define MEXMAT_COVS_INL_H
 
 #include <Eigen/LU>
-#include <limits> 
+#include <limits>
 
 namespace mex {
+
+#define MapAlignment Eigen::Unaligned
 
 template <typename _T> inline
 _T ComputeNormal(const Mat<_T>& X, const std::vector<mwIndex>& inds, _T* N)
@@ -31,32 +33,32 @@ _T ComputeNormal(const Mat<_T>& X, const std::vector<mwIndex>& inds, _T* N)
   typedef Matrix<_T,3,1> Vec3;
   typedef Matrix<_T,3,3> Mat3;
 
-  // 
-  // compute the mean 
+  //
+  // compute the mean
   //
   Vec3 mu = Vec3::Zero();
   for(size_t i=0; i<inds.size(); ++i)
-    mu += Map<const Vec3, Unaligned>(X.col(inds[i]),3,1);
+    mu += Map<const Vec3, MapAlignment>(X.col(inds[i]),3,1);
 
   if(inds.size())
     mu /= static_cast<_T>(inds.size());
-  
-  // 
+
+  //
   // compute the covariance
   //
   Mat3 C = Mat3::Zero();
   for(size_t i=0; i<inds.size(); ++i)
   {
-    auto p = Map<const Vec3, Unaligned>(X.col(inds[i]),3,1);
+    auto p = Map<const Vec3, MapAlignment>(X.col(inds[i]),3,1);
     C += (p-mu)*(p-mu).transpose();
   }
-  if(inds.size()) 
+  if(inds.size())
     C /= static_cast<_T>(inds.size());
 
   return ComputeNormalFromCovariance(C, N);
 }
 
-template <typename _T> inline 
+template <typename _T> inline
 _T ComputeNormalFromCovariance(const Eigen::Matrix<_T,3,3>& C, _T* normal)
 {
   using namespace Eigen;
@@ -67,11 +69,11 @@ _T ComputeNormalFromCovariance(const Eigen::Matrix<_T,3,3>& C, _T* normal)
   const Vec3 evals = solver.eigenvalues();
   const Mat3 evecs = solver.eigenvectors();
 
-  // find the smallest and second smallest index (bruteforce) 
+  // find the smallest and second smallest index (bruteforce)
   int i1 = -1; // smallest ind
   int i2 = -1; // second smallest
   _T smallest = std::numeric_limits<_T>::max();
-  for(int i=0; i<3; ++i) { 
+  for(int i=0; i<3; ++i) {
     if(evals[i] < smallest) { i1 = i; smallest = evals[i]; }
   }
   switch(i1) {
@@ -83,7 +85,7 @@ _T ComputeNormalFromCovariance(const Eigen::Matrix<_T,3,3>& C, _T* normal)
 
   memcpy(normal, evecs.col(i1).data(), 3*sizeof(_T));
 
-  _T s = evals.sum(); 
+  _T s = evals.sum();
   return fabs(s)>1e-8?(2.0*(evals[i2]-evals[i1]) / s): 0;
 }
 
@@ -103,13 +105,13 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
 
   _T sum_w = 0; // sum weights
   mu = Vec3::Zero();
-  for(size_t i=0; i<inds.size(); ++i) 
+  for(size_t i=0; i<inds.size(); ++i)
   {
     const _T d = sqrt(dists[i]); // Euclidean distance
     const _T w = d > eps ? (1.0/d) : 1;
     sum_w += w;
 
-    mu += w * Map<const Vec3, Unaligned>(X.col(inds[i]),3,1);
+    mu += w * Map<const Vec3, MapAlignment>(X.col(inds[i]),3,1);
   }
   mu /= std::max(eps, sum_w); // -1 ?
 
@@ -122,7 +124,7 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
     const _T w = (d > eps ? (1.0/d) : 1) / sum_w;
     sum_w2 += w*w;
 
-    const auto p = Map<const Vec3, Unaligned>(X.col(inds[i]),3,1);
+    const auto p = Map<const Vec3, MapAlignment>(X.col(inds[i]),3,1);
     C += w * (p-mu) * (p-mu).transpose();
   }
 
@@ -149,7 +151,7 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
     const _T w = d > eps ? (1.0/d) : 1;
     sum_w += w;
 
-    mu += w*Map<const Vec3, Unaligned>(X.col(matches[i].first));
+    mu += w*Map<const Vec3, MapAlignment>(X.col(matches[i].first));
   }
 
   mu /= std::max(eps, sum_w);
@@ -162,7 +164,7 @@ void ComputeWeightedMeanAndCovariance(const mex::Mat<_T>& X,
     const _T w = (d > eps ? (1.0/d) : 1) / sum_w;
     sum_w2 += w*w;
 
-    const auto p = Map<const Vec3, Unaligned>(X.col(matches[i].first));
+    const auto p = Map<const Vec3, MapAlignment>(X.col(matches[i].first));
     C += w * (p-mu) * (p-mu).transpose();
   }
 

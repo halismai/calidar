@@ -78,7 +78,7 @@ function [H,C] = run_optimization(H, s1, s2, opts)
 
   % compute normals and correspondences indices
   [x1,x2]       = opts.actuation_func(s1,s2,H);
-  fprintf('calling compute_adaptive_normals_mex with %d\n',opts.normals_k);
+  %fprintf('calling compute_adaptive_normals_mex with %d\n',opts.normals_k);
   [n1,n_scores] = compute_adaptive_normals_mex(x1', opts.normals_k);
   [i1,i2]       = find_correspondences(x1,x2, ...
     opts.max_neighbor_dist_sq,opts.use_unique_corrs);
@@ -149,12 +149,15 @@ function opts = setup_display(opts, s1, s2)
   if opts.do_show
     [x1,x2] = opts.actuation_func(s1,s2,opts.H_init);
     hold off;
-    opts.plot_hdle1 = plot33(x1','.',8); hold on;
-    opts.plot_hdle2 = plot33(x2','.',8);
+    opts.plot_hdle1 = plot33(x1','.',6); hold on;
+    opts.plot_hdle2 = plot33(x2','.',6);
     set(opts.plot_hdle1, 'color', [255 180 0]/255);
     set(opts.plot_hdle2, 'color', [0 80 255]/255);
-    %view(opts.view_axis);
-    view([0 0 1])
+    if ~isempty(opts.view_axis)
+      view(opts.view_axis);
+    else
+      view([0 1 0]);
+    end
     drawnow;
   end
 end

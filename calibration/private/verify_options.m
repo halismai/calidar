@@ -46,9 +46,9 @@ function o = verify_options(o)
   % convergence parameters
   % these parameters will need to be around the accuracy of the returns
   % delta rotation in DEGREES
-  o = check_struct_field(o, 'R_delta_thresh', 0.1);
+  o = check_struct_field(o, 'R_delta_thresh', 1e-4);
   % delta translation in METERS
-  o = check_struct_field(o, 't_delta_thresh', 0.5/100);
+  o = check_struct_field(o, 't_delta_thresh', 1e-4);
 
   % TODO display related parameters
   o = check_struct_field(o, 'do_show', false); % no display

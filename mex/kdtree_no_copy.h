@@ -36,7 +36,7 @@
 
 namespace mex {
 
-namespace { 
+namespace {
 /** @return the argument squared */
 template <typename __T> static inline __T sq(const __T& v) { return v*v; }
 }; // namespace
@@ -50,14 +50,14 @@ class KdTreeNoCopy {
  public:
   typedef KdTreeNoCopy<_T,_Dim,_Dist,_Index>  self_t;
   typedef std::shared_ptr<self_t>       Ptr;
-  typedef std::shared_ptr<const self_t> ConstPtr; 
+  typedef std::shared_ptr<const self_t> ConstPtr;
 
   typedef typename _Dist::template traits<_T,self_t>::distance_t metric_t;
   typedef nanoflann::KDTreeSingleIndexAdaptor<metric_t, self_t, _Dim, _Index> index_t;
 
  public:
-  /** 
-   * \param data 3xN data for the tree 
+  /**
+   * \param data 3xN data for the tree
    * \param max_leaf_size max leaf size
    */
   explicit KdTreeNoCopy(const Mat<_T>& data, const int max_leaf_size = 10) :
@@ -71,10 +71,10 @@ class KdTreeNoCopy {
   // KNN search interface
   //
  public:
-  /** 
+  /**
    * nearest neighbor, k=1
    */
-  inline void knnsearch(const Mat<_T>& query, std::vector<_Index>& inds, 
+  inline void knnsearch(const Mat<_T>& query, std::vector<_Index>& inds,
                  std::vector<_T>& dists) const {
     inds.resize(query.cols());
     dists.resize(query.cols());
@@ -90,9 +90,9 @@ class KdTreeNoCopy {
     dists.resize(query.cols());
 
 #pragma omp parallel for
-    for(size_t i=0; i<query.cols(); ++i) 
+    for(size_t i=0; i<query.cols(); ++i)
     {
-      inds[i].resize(k); 
+      inds[i].resize(k);
       dists[i].resize(k);
       index_->knnSearch(query.col(i), k, &inds[i][0], &dists[i][0]);
     }
@@ -110,19 +110,20 @@ class KdTreeNoCopy {
     index_->knnSearch(q, k, &inds[0], &dists[0]);
   }
 
-  /** 
+  /**
    */
   inline void rangesearch(const Mat<_T>& query, const Mat<_T>& range,
                    std::vector<std::vector<std::pair<_Index,_T>>>& result) const
   {
     result.resize(query.size());
-#pragma omp parallel for 
+#pragma omp parallel for
     for(size_t i=0; i<query.size(); ++i)
     {
       const _T r = range.length() > 1 ? range[i] : range[0];
       std::vector<std::pair<_Index,_T>> nn;
+      nn.reserve(100);
 
-      const nanoflann::SearchParams params; // not used 
+      const nanoflann::SearchParams params; // not used
       index_->radiusSearch(query.col(i), r, nn, params);
 
       result[i].swap(nn);
@@ -139,7 +140,7 @@ class KdTreeNoCopy {
   }
 
 
-  // 
+  //
   // nanoflann interface
   //
  public:

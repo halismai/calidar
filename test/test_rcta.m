@@ -8,7 +8,7 @@ max_range = 30.0;
 [s1,s2] = rcta.split(d1,min_range,max_range);
 
 H = eye(4);
-H(1:3,end) = [0; 0; 0.2];%./100;
+H(1:3,end) = [0; 10; 10];%./100;
 
 
 [x1,x2] = rcta.actuate_split(s1,s2, H);
@@ -19,7 +19,7 @@ c = reflectance2real(r, range, 200);
 c = squeeze(real2rgb(c, jet(256)))';
 c = uint8(255*c);
 
-toply_mex('points.ply', single([x1' x2']),c);
+toply_mex('points4.ply', single([x1' x2']),c);
 
 %[p1,c1,e1] = colorize_by_err(x1,x2);
 
