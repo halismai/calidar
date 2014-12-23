@@ -1,6 +1,0 @@
-Matlab seems to claim (unconfirmed) to return aligned memory. This does not seem
-to be the case sometimes (at least on my machine x86-64 linux), and hence all
-Eigen::Map objects will need to be, unfortunately, Eigen::Unaligned.
-
--- halismai 
-

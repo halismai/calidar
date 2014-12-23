@@ -1,4 +1,7 @@
 - Eliminate the copy for the kdtree. Might not be possible with MEX
 - Provide pure Matlab interface for MEX functions
+- Confirm 16-byte alignment from matlab (had to use Eigen::Unaligned)
+
+-- halismai
 
 
