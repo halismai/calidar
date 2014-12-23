@@ -1,25 +1,25 @@
 function R = get_rot_mat(theta,axs)
-  % R=get_rot_mat(theta,axs) 
+  % R=get_rot_mat(theta,axs)
   %
-  % returns a rotation matrix of 'theta' degrees 
-  % about 'axs' 
+  % returns a rotation matrix of 'theta' degrees
+  % about 'axs'
   %
   % axs could be 'X', 'Y', 'Z' or any random unit vector
   % if axs is a vector but not unit, it'll be normalized to unit length
-  % 
-  % Hatem Alismail <halismai@cs.cmu.edu> 
+
+  % Hatem Alismail <halismai@cs.cmu.edu>
   % Last modified: Fri 15 Feb 2013 03:21:21 PM EST
 
-  check_soln = 1;
+  check_soln = 0;
 
-  if nargin < 2 
+  if nargin < 2
     axs = 'x';
   end
 
-  t = theta * pi / 180; 
-  c = cos(t); s = sin(t); 
+  t = theta * pi / 180;
+  c = cos(t); s = sin(t);
 
-  if strcmp(class(axs),'char')
+  if ischar(axs)
 
     switch lower(axs)
       case 'x' % Y
@@ -29,29 +29,29 @@ function R = get_rot_mat(theta,axs)
       case 'z'
         R = [ c -s 0; s c 0; 0 0 1];
       otherwise
-        error(['Unknown rotation axis ' axs]); 
+        error(['Unknown rotation axis ' axs]);
     end
 
-  else 
+  else
 
-    % make sure it is a unit vector 
+    % make sure it is a unit vector
     if norm(axs) ~= 1
       %disp('normalizing to unit vector');
       axs = axs ./ sqrt(sum(axs.^2));
-    end  
+    end
     u = axs;
     sum(u.^2);
-    ux = axs(1); uy = axs(2); uz = axs(3); 
+    ux = axs(1); uy = axs(2); uz = axs(3);
 
     R = [ux^2 + (1-ux^2)*c, ux*uy*(1-c)-u(3)*s ux*uz*(1-c)+uy*s;
     ux*uy*(1-c) + uz*s, uy^2+(1-uy^2)*c,uy*uz*(1-c)-ux*s;
     ux*uz*(1-c) - uy*s, uy*uz*(1-c)+ux*s, uz^2+(1-uz^2)*c];
-  end 
+  end
 
-  if check_soln 
-    n = R*R' - eye(3); 
-    e = ones(3)*1e-12; 
-    if any(n>e) 
+  if check_soln
+    n = R*R' - eye(3);
+    e = ones(3)*1e-12;
+    if any(n>e)
       error('bad matrix');
     end
   end

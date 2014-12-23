@@ -7,6 +7,10 @@
 //
 // simple ply writer
 //
+// see LICENSE
+//
+// Hatem Alismail <halismai @ cs.cmu.edu>
+//
 
 static inline bool IsLittleEndain()
 {
@@ -195,7 +199,8 @@ void mexFunction(int nlhs, mxArray* plhs[],
   Mat<float> pts(prhs[1]); massert(pts.rows()==3,"data must be 3xN");
 
 
-  std::cout << "will write " << pts.cols() << " points to PLY file: " << outfile << std::endl;
+  std::cout << "will write " << pts.cols() << " points to PLY file: "
+      << outfile << std::endl;
 
   if(nrhs > 3)  // with color + normals
   {
