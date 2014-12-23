@@ -1,4 +1,5 @@
-#include "mex/mexmat.h"
+#include <mexmat.h>
+
 #include <cstdio>
 #include <string>
 //#include <boost/filesystem.hpp>
@@ -6,8 +7,6 @@
 //
 // simple ply writer
 //
-
-
 
 static inline bool IsLittleEndain()
 {
@@ -248,7 +247,5 @@ void mexFunction(int nlhs, mxArray* plhs[],
 
   if(nlhs>0) plhs[0] = ret.release();
 }
-
-
 
 

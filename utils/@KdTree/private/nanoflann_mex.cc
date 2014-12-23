@@ -1,4 +1,4 @@
-#include "mex/mexmat.h"
+#include <mexmat.h>
 #include "mex/kdtree.h"
 
 #include <string>

@@ -4,7 +4,8 @@
 
 #ifndef MEX_KDTREE_H
 #define MEX_KDTREE_H 1
-#include "mex/mexmat.h"
+
+#include <mexmat.h>
 #include <nanoflann.hpp>
 
 #if defined(MEXMAT_WITH_TBB)

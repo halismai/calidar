@@ -1,4 +1,4 @@
-#include "mex/mexmat.h"
+#include <mexmat.h>
 #include <cmath>
 
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, mxArray const * prhs[])
