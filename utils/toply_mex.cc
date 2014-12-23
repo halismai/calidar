@@ -1,15 +1,15 @@
 #include "mex/mexmat.h"
 #include <cstdio>
 #include <string>
-#include <boost/filesystem.hpp>
+//#include <boost/filesystem.hpp>
 
-// 
-// simple ply writer 
-// 
+//
+// simple ply writer
+//
 
 
 
-static inline bool IsLittleEndain() 
+static inline bool IsLittleEndain()
 {
   int n = 1;
   return (static_cast<int>(*((unsigned char*)(&n))) == 1);
@@ -17,11 +17,11 @@ static inline bool IsLittleEndain()
 
 static inline bool WritePlyHeader(FILE* fp, int npts)
 {
-  // detect endian 
-  fprintf(fp, "ply\n"); 
-  fprintf(fp, "format binary_%s_endian 1.0\n", 
+  // detect endian
+  fprintf(fp, "ply\n");
+  fprintf(fp, "format binary_%s_endian 1.0\n",
           IsLittleEndain() ?  "little" : "big");
-  fprintf(fp, "element vertex %d\n", npts); 
+  fprintf(fp, "element vertex %d\n", npts);
   fprintf(fp, "property float x\n");
   fprintf(fp, "property float y\n");
   fprintf(fp, "property float z\n");
@@ -42,8 +42,8 @@ template<> inline bool WritePlyHeaderWithColor<uint8_t>(FILE* fp)
 
 template<> inline bool WritePlyHeaderWithColor<float>(FILE* fp)
 {
-  fprintf(fp, "property float red\n");  
-  fprintf(fp, "property float green\n");  
+  fprintf(fp, "property float red\n");
+  fprintf(fp, "property float green\n");
   fprintf(fp, "property float blue\n");
   return true;
 }
@@ -56,9 +56,9 @@ static inline bool WritePlyHeaderWithNormal(FILE *fp)
   return true;
 }
 
-static inline FILE* FOpen(const std::string& fn) 
+static inline FILE* FOpen(const std::string& fn)
 {
-  FILE* fp = fopen(fn.c_str(), "w"); 
+  FILE* fp = fopen(fn.c_str(), "w");
   if(NULL == fp) {
     mex::error("failed to open " + fn + " for writing\n");
   }
@@ -66,18 +66,18 @@ static inline FILE* FOpen(const std::string& fn)
   return fp;
 }
 
-/* 
- * writes ply data from 3xN array of float to the file fn 
+/*
+ * writes ply data from 3xN array of float to the file fn
  */
 static bool WritePlyData(const std::string& fn, const mex::Mat<float>& points)
-{ 
+{
   FILE* fp = FOpen(fn);
   const mwSize Npts = points.cols();
   /* write the header */
   WritePlyHeader(fp, Npts);
   fprintf(fp, "end_header\n");
 
-  /* write the data */ 
+  /* write the data */
   if(1 != fwrite(points.data(), Npts*3*sizeof(float), 1, fp)) {
     mex::warning("error writing data to " + fn);
     fclose(fp);
@@ -90,23 +90,23 @@ static bool WritePlyData(const std::string& fn, const mex::Mat<float>& points)
 
 
 /*
- * writes the data with color information 
+ * writes the data with color information
  */
 template <typename _C> static inline
-bool WritePlyWithColor(const std::string& fn, const mex::Mat<float>& pts, 
+bool WritePlyWithColor(const std::string& fn, const mex::Mat<float>& pts,
                        const mex::Mat<_C>& clr)
 {
   FILE* fp = FOpen(fn);
-  const mwSize Npts = pts.cols(); 
+  const mwSize Npts = pts.cols();
 
   WritePlyHeader(fp, Npts);
   WritePlyHeaderWithColor<_C>(fp);
   fprintf(fp, "end_header\n");
 
-  /* write the data with colors */ 
-  for(mwSize i=0; i<Npts; ++i) 
+  /* write the data with colors */
+  for(mwSize i=0; i<Npts; ++i)
   {
-    if(1 != fwrite(pts.col(i), 3*sizeof(float), 1, fp)) 
+    if(1 != fwrite(pts.col(i), 3*sizeof(float), 1, fp))
     {
       mex::warning("error writing points to " + fn);
       fclose(fp);
@@ -114,7 +114,7 @@ bool WritePlyWithColor(const std::string& fn, const mex::Mat<float>& pts,
     }
 
     mwSize ind = (clr.cols() > 1) ? i : 0;
-    if(1 != fwrite(clr.col(ind), 3*sizeof(_C), 1, fp)) 
+    if(1 != fwrite(clr.col(ind), 3*sizeof(_C), 1, fp))
     {
       mex::warning("error writing point color to " + fn);
       fclose(fp);
@@ -168,18 +168,27 @@ bool WritePlyWithColorAndNormal(const std::string& fn, const mex::Mat<float>& pt
 }
 
 
+namespace fs {
 
-// TODO make the function work with double data  (maybe) 
+std::string extension(const std::string& fn)
+{
+  size_t ind = fn.find_last_of(fn);
+  return (std::string::npos != ind) ? fn.substr(ind) : "";
+}
+
+}; // fs
+
+// TODO make the function work with double data  (maybe)
 void mexFunction(int nlhs, mxArray* plhs[],
                  int nrhs, mxArray const* prhs[])
 {
   using namespace mex;
-  namespace fs = boost::filesystem;
+  //namespace fs = boost::filesystem;
 
   nargchk(2,4,nrhs,"toply_mex('out_file.ply', pts, [colors], [normals])");
 
   std::string outfile = getString(prhs[0]);
-  if(fs::extension(outfile) != ".ply") 
+  if(fs::extension(outfile) != ".ply")
     outfile += ".ply";
 
 
@@ -190,19 +199,19 @@ void mexFunction(int nlhs, mxArray* plhs[],
   std::cout << "will write " << pts.cols() << " points to PLY file: " << outfile << std::endl;
 
   if(nrhs > 3)  // with color + normals
-  { 
+  {
     const mex::Mat<float> normals(prhs[3]);
     massert(normals.rows() == 3 && normals.cols() == pts.cols(),
             "normals size mismatches points\n");
     massert(cols(prhs[2])==1|| cols(prhs[2])==pts.cols(),
             "number of colors must either be 1, or equals to the number of points");
 
-    const mxClassID id = classId(prhs[2]); 
+    const mxClassID id = classId(prhs[2]);
     switch(id)
     {
       case mxUINT8_CLASS:
         {
-          Mat<uint8_t> clr(prhs[2]); 
+          Mat<uint8_t> clr(prhs[2]);
           ret[0] = WritePlyWithColorAndNormal<uint8_t>(outfile,pts,clr,normals);
         } break;
       case mxSINGLE_CLASS:
@@ -213,14 +222,14 @@ void mexFunction(int nlhs, mxArray* plhs[],
       default: mex::error("unsupported color type " + className(prhs[2]));
     }
   }
-  else if(nrhs > 2)  // with color only 
+  else if(nrhs > 2)  // with color only
   {
     massert(cols(prhs[2])==1|| cols(prhs[2])==pts.cols(),
             "number of colors must either be 1, or equals to the number of points");
-    const mxClassID id = classId(prhs[2]); 
+    const mxClassID id = classId(prhs[2]);
     switch(id)
     {
-      case mxUINT8_CLASS: 
+      case mxUINT8_CLASS:
         {
           Mat<uint8_t> clr(prhs[2]);
           ret[0] = WritePlyWithColor<uint8_t>(outfile, pts,clr);
@@ -233,7 +242,7 @@ void mexFunction(int nlhs, mxArray* plhs[],
       default: mex::error("unsupported color type " + className(prhs[2]));
     }
   }
-  else { // 3d points only 
+  else { // 3d points only
     ret[0] = WritePlyData(outfile, pts);
   }
 

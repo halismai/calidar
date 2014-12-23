@@ -1,8 +1,9 @@
 CXX=g++
 
+# if this failes to find Matlab's root, edit it by hand
 MATLAB_ROOT = $(shell $(MEX) -v 2>&1 | sed -n 's/.*MATLAB *= *\(.*\)/\1/gp')
+MEX_SUFFIX  = $(shell mexext)
 MEX = mex
-MEX_SUFFIX = $(shell mexext)
 MEX_FLAGS  = -cxx CC='$(CXX)' CXX='$(CXX)' LD='$(CXX)' -largeArrayDims -O
 MEX_OUT_DIR = bin
 
@@ -13,9 +14,12 @@ CXX_FLAGS += -Wall -fPIC -fopenmp -mtune=native -O3 -std=c++11
 CXX_FLAGS += -malign-double -ftree-vectorize
 CXX_FLAGS += -I/usr/include/mpi/
 CXX_FLAGS += `pkg-config --cflags eigen3`
+CXX_FLAGS += `pkg-config --cflags nanoflann`
+CXX_FLAGS += -Wunused-local-typedefs # for gcc-4.8
 
 LD_FLAGS  += -lm -lgomp -L/usr/local/lib -Lmex/
-LD_FLAGS  += -lboost_system -lboost_filesystem `pkg-config --libs tbb`
+LD_FLAGS  += `pkg-config --libs tbb`
+#LD_FLAGS  += -lboost_system -lboost_filesystem `pkg-config --libs tbb`
 
 MEX_SRC := $(shell find . -name "*_mex.cc")
 LIB_SRC := $(filter-out $(MEX_SRC), $(shell find . -name "*.cc"))
