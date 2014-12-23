@@ -1,20 +1,3 @@
-/*
-   Copyright (C) 2013  Hatem Alismail <halismai@cs.cmu.edu>
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #ifndef MEX_KDTREE_INL_H
 #define MEX_KDTREE_INL_H 1
 
@@ -44,7 +27,7 @@ KdTree<__T,__D,__Dist,__Index>::knnsearch(const Mat<__T>& query, const size_t k)
 {
   mex::massert(query.rows() == data_.rows(), "knnsearch: data dimension mismatch");
 
-  const mwSize Npts = query.cols(); 
+  const mwSize Npts = query.cols();
   KnnSearchResult_t result(Mat<__Index>(k,Npts), Mat<__T>(k,Npts));
 
 #if defined(MEXMAT_WITH_TBB)
@@ -61,7 +44,7 @@ KdTree<__T,__D,__Dist,__Index>::knnsearch(const Mat<__T>& query, const size_t k)
 #pragma omp parallel for
   for(mwSize i=0; i<Npts; ++i) {
     index_->knnSearch(query.col(i), k, result.first.col(i), reuslt.second.cols(i));
-    for(size_t kk=0; kk<k; ++k) 
+    for(size_t kk=0; kk<k; ++k)
       ++result.first(kk, i);
   }
 #endif // MEXMAT_WITH_TBB
@@ -80,7 +63,7 @@ KdTree<__T,__D,__Dist,__Index>::rangesearch(const Mat<__T>& query,
   const mwSize Npts = query.cols();
   const mwSize Nr   = range.length();
   mex::massert(Nr == Npts || 1 == Nr,
-               "rangesearch: range and data length mismatch"); 
+               "rangesearch: range and data length mismatch");
 
   RangeSearchResult_t out(Cell(1,Npts), Cell(1,Npts));
 
@@ -89,7 +72,7 @@ KdTree<__T,__D,__Dist,__Index>::rangesearch(const Mat<__T>& query,
 
 #if 0 && defined(MEXMAT_WITH_TBB)
   tbb::parallel_for(
-      tbb::blocked_range<mwSize>(0, Npts), 
+      tbb::blocked_range<mwSize>(0, Npts),
       [&](const tbb::blocked_range<mwSize>& rr) {
       for(mwSize i=rr.begin(); i<rr.end(); ++i)
       {
@@ -98,7 +81,7 @@ KdTree<__T,__D,__Dist,__Index>::rangesearch(const Mat<__T>& query,
         const nanoflann::SearchParams params; // not used by nanoflann
         index_->radiusSearch(query.col(i), r, res, params);
 
-        // convert the result into matlab types 
+        // convert the result into matlab types
         Mat<__Index> inds(1, res.size());
         Mat<__T>     dists(1, res.size());
         for(size_t kk=0; kk<res.size(); ++kk) {
@@ -112,17 +95,17 @@ KdTree<__T,__D,__Dist,__Index>::rangesearch(const Mat<__T>& query,
       }
       );
 #else
-//  matlab allocation in parallel doesn't work
+// matlab allocation is not thread safe
 //#pragma omp parallel for
   for(mwSize i=0; i<Npts; ++i)
   {
 
     std::vector<std::pair<__Index, __T>> res;
-    const __T r = (Nr == 1) ? range[0] : range[i]; 
+    const __T r = (Nr == 1) ? range[0] : range[i];
     const nanoflann::SearchParams params; // not used by nanoflann
     index_->radiusSearch(query.col(i), r, res, params);
 
-    // convert the result into matlab types 
+    // convert the result into matlab types
     Mat<__Index> inds(1, res.size());
     Mat<__T>     dists(1, res.size());
     for(size_t kk=0; kk<res.size(); ++kk) {
@@ -133,13 +116,12 @@ KdTree<__T,__D,__Dist,__Index>::rangesearch(const Mat<__T>& query,
     out.first.set(i, inds.release());
     out.second.set(i, dists.release());
   }
-#endif // 
+#endif //
 
   return out;
 }
 
-
-
 }; // mex
 
 #endif // MEX_KDTREE_INL_H
+

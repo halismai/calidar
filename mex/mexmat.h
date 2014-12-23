@@ -276,7 +276,7 @@ class size {
 
 
 template <typename _T = double, mxComplexity C = mxREAL> inline
-mxArray* newMexMatrix(mwSize m, mwSize n) {
+mxArray* newMexMatrix(mwSize m = 0 , mwSize n = 0) {
   return mxCreateNumericMatrix(m,n,traits_<_T>::type,C);
 }
 
@@ -345,6 +345,9 @@ std::string id2string(mxClassID);
 
 template <typename _T = double>
 class Mat {
+ public:
+  typedef _T value_type;
+
  public:
   /** empty ctor creates an empty array */
   Mat();
@@ -420,6 +423,7 @@ class Mat {
   inline const _T* col(int i) const { return &(this->operator()(0,i)); }
 
   inline mwSize length() const { return mex::length(mx_ptr_); }
+  inline mwSize size()   const { return length(); }
   inline mwSize rows()   const { return mex::rows(mx_ptr_); }
   inline mwSize cols()   const { return mex::cols(mx_ptr_); }
   inline mwSize ndims()  const { return mex::ndims(mx_ptr_); }
@@ -450,6 +454,9 @@ class Mat {
 
   operator const  mxArray*() const { return mx_ptr_; }
   //operator      mxArray*()       { return mx_ptr_; }  // const cast only
+
+  inline _T* begin() { return ptr(); }
+  inline _T* end()   { return (ptr() + length()); }
 
 #if defined(MEXMAT_WITH_EIGEN)
   template <typename __T>

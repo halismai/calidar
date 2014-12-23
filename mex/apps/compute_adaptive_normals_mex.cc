@@ -1,20 +1,3 @@
-/*
-   Copyright (C) 2013  Hatem Alismail <halismai@cs.cmu.edu>
-
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include "mex/kdtree_no_copy.h"
 #include "mex/covs.h"
 
@@ -81,7 +64,7 @@ void mexFunction(int nlhs, mxArray* plhs[],
   switch(id) {
     case mxDOUBLE_CLASS: run<double>(nlhs, plhs, nrhs, prhs); break;
     case mxSINGLE_CLASS: run<float>(nlhs, plhs, nrhs, prhs); break;
-    default: mex::error("bad class "+mex::className(prhs[0])+"\n");
+    default: mex::error("unsupported class "+mex::className(prhs[0])+"\n");
   }
-
 }
+

@@ -89,11 +89,12 @@ function [H,C] = run_optimization(H, s1, s2, opts)
     % error on correspondences only, point-to-plane
     % TODO add the gradient
 
-    %e = n_scores(i1).*bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));% / length(i1);
-    e = bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1)) / sqrt(length(i1));
+    e = n_scores(i1).*bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1));% / length(i1);
+    %e = bsxfun(@dot, (x1(i1,:)-x2(i2,:))', n1(:, i1)) / sqrt(length(i1));
   end
 
   y1=[]; y2=[];
+
   function s = out_fn(pp, varargin)
     s = false;
     [y1,y2] = opts.actuation_func(s1, s2, opts.p2h(pp));

@@ -17,7 +17,7 @@ using namespace std;
 template <typename _T = DTYPE> static inline
 void do_command_new(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[])
 {
-  /* 
+  /*
    * handle = nanoflann_mex('new', data, [max_leaf_size=10]);
    */
   nargchk(1,2,nrhs,"handle = nanoflann_mex('new', data, [max_leaf_size=10]");
@@ -75,11 +75,11 @@ void do_command_rangesearch(int nlhs, mxArray* plhs[], int nrhs, mxArray const* 
 }
 
 /*
- * entry 
+ * entry
  */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[])
 {
-  if(nrhs < 1) 
+  if(nrhs < 1)
     mex::error("nanoflann_mex: missing command\n");
 
   const std::string cmd = getString(prhs[0]);
@@ -91,9 +91,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[])
     do_command_delete      (nlhs, plhs, nrhs, prhs);
   else if("knnsearch" == cmd)
     do_command_knnsearch   (nlhs, plhs, nrhs, prhs);
-  else if("rangesearch" == cmd) 
+  else if("rangesearch" == cmd)
     do_command_rangesearch (nlhs, plhs, nrhs, prhs);
-  else 
+  else
     mex::error("unknown command " + cmd);
 }
 
