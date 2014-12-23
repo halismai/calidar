@@ -23,8 +23,8 @@ LD_FLAGS  += -lm -lgomp -L/usr/local/lib -Lmex/
 #LD_FLAGS  += -lboost_system -lboost_filesystem `pkg-config --libs tbb`
 
 # comment out this if you do not have tbb
-#CXX_FLAGS += -DMEXMAT_WITH_TBB
-#LD_FLAGS  += `pkg-config --libs tbb`
+CXX_FLAGS += -DMEXMAT_WITH_TBB
+LD_FLAGS  += `pkg-config --libs tbb`
 
 MEX_SRC := $(shell find . -name "*_mex.cc")
 LIB_SRC := $(filter-out $(MEX_SRC), $(shell find . -name "*.cc"))
