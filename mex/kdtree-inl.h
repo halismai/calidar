@@ -43,8 +43,8 @@ KdTree<__T,__D,__Dist,__Index>::knnsearch(const Mat<__T>& query, const size_t k)
 #else
 #pragma omp parallel for
   for(mwSize i=0; i<Npts; ++i) {
-    index_->knnSearch(query.col(i), k, result.first.col(i), reuslt.second.cols(i));
-    for(size_t kk=0; kk<k; ++k)
+    index_->knnSearch(query.col(i), k, result.first.col(i), result.second.col(i));
+    for(size_t kk=0; kk<k; ++kk)
       ++result.first(kk, i);
   }
 #endif // MEXMAT_WITH_TBB

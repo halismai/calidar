@@ -9,7 +9,7 @@ MEX_OUT_DIR = bin
 
 CXX_FLAGS = -I. -I$(MATLAB_ROOT)/extern/include       	      \
             -I/usr/local/include/                             \
-            -DMEXMAT_WITH_TBB -DMEXMATWITH_EIGEN  -DMEXMAT_WITH_NANOFLANN
+            -DMEXMATWITH_EIGEN  -DMEXMAT_WITH_NANOFLANN
 # path to use installation of mexmat
 CXX_FLAGS += -I/home/halismai/code/mexmat/
 CXX_FLAGS += -Wall -fPIC -fopenmp -mtune=native -O3 -std=c++11
@@ -20,8 +20,11 @@ CXX_FLAGS += `pkg-config --cflags nanoflann`
 CXX_FLAGS += -Wno-unused-local-typedefs # for gcc-4.8
 
 LD_FLAGS  += -lm -lgomp -L/usr/local/lib -Lmex/
-LD_FLAGS  += `pkg-config --libs tbb`
 #LD_FLAGS  += -lboost_system -lboost_filesystem `pkg-config --libs tbb`
+
+# comment out this if you do not have tbb
+#CXX_FLAGS += -DMEXMAT_WITH_TBB
+#LD_FLAGS  += `pkg-config --libs tbb`
 
 MEX_SRC := $(shell find . -name "*_mex.cc")
 LIB_SRC := $(filter-out $(MEX_SRC), $(shell find . -name "*.cc"))
