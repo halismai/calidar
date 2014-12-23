@@ -1,0 +1,12 @@
+*.asv
+*.m~
+*.mex*
+*.o
+*.a
+
+*.swp
+*.swo
+*~
+
+*.ply
+*.mat
