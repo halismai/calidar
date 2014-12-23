@@ -31,8 +31,3 @@ example_data*
 *.mat
 *.cmake*
 results/
-build/
-docs/
-paper/
-data/rpm/
-
