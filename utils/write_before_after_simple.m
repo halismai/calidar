@@ -12,4 +12,4 @@ function write_before_after_simple(prefix, s1, s2, H)
   [x1, x2] = example_sensor.actuate_split(s1, s2, H);
   toply_mex(sprintf('%s_after.ply', prefix), single([x1' x2']), clr);
 
-end 
+end

@@ -13,6 +13,7 @@ end
 
 min_range = 0.3;
 max_range = 8.0;
+
 % split the scan data based on the actuation mechansim
 [s1,s2] = example_sensor.split(data, min_range, max_range);
 

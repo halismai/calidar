@@ -1,13 +1,13 @@
 function fig2eps(fname,hdle)
-  % function fig2eps(fname,hdle) 
-  % 
+  % function fig2eps(fname,hdle)
+  %
   % Writes the figure encapsulated post script EPS file
-  % 
-  % INPUT 
+  %
+  % INPUT
   %    fname    output filename [.eps] will be appended by defulat if fname does
-  %    not have it 
+  %    not have it
   %    hdle     the figure handle you want to eps
-  % 
+  %
   % Hatem Alismail <halismai@cs.cmu.edu>
   % Last modified: Fri 15 Feb 2013 03:36:40 PM EST
   %

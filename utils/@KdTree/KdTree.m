@@ -81,8 +81,6 @@ classdef KdTree < handle
       end
 
       if obj.use_nanoflann
-        query
-        r
         [inds,dists] = nanoflann_mex('rangesearch', ...
           obj.tree_handle_, single(query), single(r));
       else
@@ -92,8 +90,10 @@ classdef KdTree < handle
           Q = single(query);
           inds = cell(1, length(r));
           dists = cell(1, length(r));
+
+          hdle = obj.tree_handle_;
           parfor i=1:length(r)
-            [ii,dd] = rangesearch(obj.tree_handle_, Q(:,i)', r(i));
+            [ii,dd] = rangesearch(hdle, Q(:,i)', r(i));
             inds{i} = ii{:};
             dists{i} = dd{:};
           end
