@@ -57,8 +57,7 @@ This struct specifies options to the calibration routine. Most important fields:
   be accurate and usually eye-balling, or nominal values from a CAD model
   will suffice.
 
-There are other options fully documented in
-```calibration/private/verify_options.m```
+There are other options fully documented in ```calibration/private/verify_options.m```
 
 See the implementation of example_sensor in ```+example_sensor``` and
 ```+example_model```. The implementation is put into a matlab package so that
