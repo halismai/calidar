@@ -20,7 +20,7 @@
 namespace mex {
 
 namespace {
-/** @return the argument squared */
+/** \return the argument squared */
 template <typename __T> static inline __T sq(const __T& v) { return v*v; }
 }; // namespace
 

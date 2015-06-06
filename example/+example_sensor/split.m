@@ -6,7 +6,7 @@ function [s1,s2] = split(data, min_range, max_range)
   %
   % INPUT
   %
-  %    data  ,    Nx3 raw data from example_sensor.load()
+  %    data       Nx3 raw data from example_sensor.load()
   %    min_range  minimum range to triangulate [default = 0.30 m]
   %    max_range  maximum range to triangulate [default = 30.0 m]
   %

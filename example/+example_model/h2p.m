@@ -11,10 +11,10 @@ function p = h2p(H)
   %    p    column vector of optimization parameters
   %
   % NOTE
-  %     for this example sensor, we have a 5DOF kinematic model. Three
-  %     rotational DOF and two for the translation along the Y and X axes.
-  %     Translation along the Z axis is underconstrained as it is about the
-  %     motor's rotation axis
+  %     For this example sensor, we have a 5DOF kinematic model. Three
+  %     rotational DOF and two for the translation along the Y- and X- axes.
+  %     Translation along the Z-axis is underconstrained as it is the motor's
+  %     rotation axis
 
   % Hatem Alismail <halismai@cs.cmu.edu>
   % Last modified: Mon 11 Nov 2013 08:20:12 PM EST

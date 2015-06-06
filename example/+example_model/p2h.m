@@ -20,16 +20,15 @@ function H = p2h(p)
 
   assert(isvector(p) && (length(p) == 5 || length(p)==4), ...
     'incorrect parameters vector length');
-  if size(p,1) == 1, p = p'; end % make it a column col-vector if needed
+  if size(p,1) == 1, p = p'; end % make it a column vector if needed
 
   H = eye(4);
-
 
   if length(p) == 5
     % the first 3 elements of the vector a euler angles
     H(1:3,1:3) = euler2mat(p(1), p(2), p(3));
-    % the translation parts are restricted to X and Y,
-    % a translationa long Z is underconstrained
+    % the translation parts are restricted to X and Y.
+    % Translation long Z is underconstrained
     H(1:3,end) = [p(4:end); 0];
   else
     H(1:3,1:3) = euler2mat(0, p(1), p(2));
@@ -37,3 +36,4 @@ function H = p2h(p)
   end
 
 end  % p2h
+

@@ -14,7 +14,6 @@ KD_TREE_TMPLT()::KdTree(const Mat<__T>& d, const int max_leaf_size) :
     index_(new index_t(data_.rows(),*this,nanoflann::KDTreeSingleIndexAdaptorParams(max_leaf_size)))
 {
   index_->buildIndex();
-
   mexMakeArrayPersistent(data_.mxData());
 }
 
@@ -70,36 +69,7 @@ KdTree<__T,__D,__Dist,__Index>::rangesearch(const Mat<__T>& query,
 
   std::cout << "rangesearch over " << Npts  << std::endl;
 
-#if 0 && defined(MEXMAT_WITH_TBB)
-  tbb::parallel_for(
-      tbb::blocked_range<mwSize>(0, Npts),
-      [&](const tbb::blocked_range<mwSize>& rr) {
-      for(mwSize i=rr.begin(); i<rr.end(); ++i)
-      {
-        std::vector<std::pair<__Index, __T>> res;
-        const __T r = (range.length() == 1) ? range[0] : range[i];
-        const nanoflann::SearchParams params; // not used by nanoflann
-        index_->radiusSearch(query.col(i), r, res, params);
-
-        // convert the result into matlab types
-        Mat<__Index> inds(1, res.size());
-        Mat<__T>     dists(1, res.size());
-        for(size_t kk=0; kk<res.size(); ++kk) {
-        inds[kk]  = (res[kk].first + 1); // +1 for Matlab
-        dists[kk] = res[kk].second;
-      }
-
-        out.first.set(i, inds.release());
-        out.second.set(i, dists.release());
-      } // for
-      }
-      );
-#else
-// matlab allocation is not thread safe
-//#pragma omp parallel for
-  for(mwSize i=0; i<Npts; ++i)
-  {
-
+  for(mwSize i=0; i<Npts; ++i) {
     std::vector<std::pair<__Index, __T>> res;
     const __T r = (Nr == 1) ? range[0] : range[i];
     const nanoflann::SearchParams params; // not used by nanoflann
@@ -116,7 +86,6 @@ KdTree<__T,__D,__Dist,__Index>::rangesearch(const Mat<__T>& query,
     out.first.set(i, inds.release());
     out.second.set(i, dists.release());
   }
-#endif //
 
   return out;
 }

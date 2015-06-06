@@ -19,7 +19,7 @@
 namespace mex {
 
 namespace {
-/** @return the argument squared */
+/** \return the argument squared */
 template <typename __T> static inline __T sq(const __T& v) { return v*v; }
 }; // namespace
 
@@ -57,7 +57,8 @@ class KdTreeNoCopy {
    * nearest neighbor, k=1
    */
   inline void knnsearch(const Mat<_T>& query, std::vector<_Index>& inds,
-                 std::vector<_T>& dists) const {
+                 std::vector<_T>& dists) const
+  {
     inds.resize(query.cols());
     dists.resize(query.cols());
 #pragma omp parallel for
@@ -67,20 +68,21 @@ class KdTreeNoCopy {
 
   /** for k > 1 */
   void knnsearch(const Mat<_T>& query, const size_t k,std::vector<std::vector<_Index>>& inds,
-                 std::vector<std::vector<_T>>& dists) const {
+                 std::vector<std::vector<_T>>& dists) const
+  {
     inds.resize(query.cols());
     dists.resize(query.cols());
 
 #pragma omp parallel for
-    for(size_t i=0; i<query.cols(); ++i)
-    {
+    for(size_t i=0; i<query.cols(); ++i) {
       inds[i].resize(k);
       dists[i].resize(k);
       index_->knnSearch(query.col(i), k, &inds[i][0], &dists[i][0]);
     }
   }
 
-  inline void closest(const _T* q, _Index& ii, _T& dd) const {
+  inline void closest(const _T* q, _Index& ii, _T& dd) const
+  {
     index_->knnSearch(q, 1, &ii, &dd);
   }
 
